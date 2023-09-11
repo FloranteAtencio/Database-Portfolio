@@ -1,1 +1,101 @@
 
+CREATE TABLE [personData] (
+  [PK_personData] INT PK,
+  [firstName] NVARCHAR(50),
+  [middleName] NVARCHAR(50),
+  [lastName] NVARCHAR(50),
+  [birthDate] DATE,
+  [address] NVARCHAR(100),
+  [passportNumber] NVARCHAR(15),
+  [email] NVARCHAR(50),
+  [phone] NVARCHAR(14)
+);
+
+CREATE TABLE [Booking] (
+  [PK_booking] INT PK,
+  [FK_personData] INT FK,
+  [bookReference] NVARCHAR(50),
+  [Datebooks] DATE,
+  [price] INT,
+  [Paid] INT,
+  CONSTRAINT [FK_Booking.FK_personData]
+    FOREIGN KEY ([FK_personData])
+      REFERENCES [personData]([PK_personData])
+);
+
+CREATE TABLE [Inclusion] (
+  [PK_inclusion] INT PK,
+  [bookReference] NVARCHAR(50),
+  [inclusionDate] Date,
+  [Country] NVARCHAR(100),
+  [Area] NVARCHAR(100),
+  CONSTRAINT [FK_Inclusion.bookReference]
+    FOREIGN KEY ([bookReference])
+      REFERENCES [Booking]([bookReference])
+);
+
+CREATE TABLE [InclusionType] (
+  [PK_inclusionType] INT PK,
+  [FK_inclusion] INT FK,
+  [Description] Nvarchar(max),
+  CONSTRAINT [FK_InclusionType.FK_inclusion]
+    FOREIGN KEY ([FK_inclusion])
+      REFERENCES [Inclusion]([PK_inclusion])
+);
+
+CREATE TABLE [HotelAccomodation] (
+  [PK_hotelAccomodation] INT PK,
+  [bookReference] NVARCHAR(50),
+  [confirmationNo] NVARCHAR(25),
+  [hotelName] NVARCHAR(50),
+  [hotelLocation] NVARCHAR(100),
+  [hotelRate] TINYINT,
+  [phone] NVARCHAR(15),
+  [room] NVARCHAR(50),
+  [numberOfRoom] TINYINT,
+  [checkIn] DATE,
+  [checkOut] DATE,
+  [nights] Tinyint,
+  [Additional Description] NVARCHAR(MAX),
+  CONSTRAINT [FK_HotelAccomodation.bookReference]
+    FOREIGN KEY ([bookReference])
+      REFERENCES [Booking]([bookReference])
+);
+
+CREATE TABLE [Transfer] (
+  [PK_transfer] INT PK,
+  [dateArrival] Date,
+  [timeArrival] Time,
+  [countryArrival] NVARCHAR(50),
+  [areaArrival] NVARCHAR(50),
+  [dateDeparture] date,
+  [timeDeparture] time,
+  [countryDeparture] NVARCHAR(50),
+  [areaDeparture] NVARCHAR(50),
+  [bookReference] NVARCHAR(50),
+  [FK_travelagentDeparture] INT FK,
+  [FK_travelAgentArrival] INT FK,
+  [Description] Nvarchar(max),
+  CONSTRAINT [FK_Transfer.bookReference]
+    FOREIGN KEY ([bookReference])
+      REFERENCES [Booking]([bookReference])
+);
+
+CREATE TABLE [TravelAgentDeparture] (
+  [PK_travelAgent] INT PK,
+  [TravelAgentName] Nvarchar(100),
+  [email] Nvarchar(25),
+  [phone] Nvarchar(20),
+  [Country] Nvarchar(20),
+  [Description] Nvarchar(max)
+);
+
+CREATE TABLE [TravelAgentArrival] (
+  [PK_travelAgent] INT PK,
+  [TravelAgentName] Nvarchar(100),
+  [email] Nvarchar(25),
+  [phone] Nvarchar(20),
+  [Country] Nvarchar(20),
+  [Description] Nvarchar(max)
+);
+
