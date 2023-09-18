@@ -20,11 +20,6 @@ Preserving Dependency Decomposition
 Lossless Join Decomposition
 •	Lossless join decomposition is a decomposition of a relation R into relations R1, R2 such that if we perform a natural join of relation R1 and R2, it will return the original relation R. This is effective in removing redundancies from databases while preserving the original data.
 
-
-
-
-
-
 Database Relations
 R:{
 	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26
@@ -149,5 +144,3 @@ CREATE TABLE `Booking Details` (
   FOREIGN KEY (`FK_PersonalData`) REFERENCES `Personal Data`(`PK_PersonalData`),
   FOREIGN KEY (`AccomodationRef`) REFERENCES `Accomodation Details`(`AccomodationRef`)
 );
-
- 
