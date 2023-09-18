@@ -1,0 +1,87 @@
+CREATE TABLE `Accomodation Details` (
+  `AccomodationRef` NVARCHAR(20) PK,
+  `ConfirmationNO` NVARCHAR(20),
+  `HotelName` NVARCHAR(20),
+  `HotelRate` NVARCHAR(20),
+  `NIghts` INT,
+  `RoomsCount` INT,
+  `HotelPhone` NVARCHAR(15),
+  `Room Description` NVARCHAR(20),
+  `CheckIn` Datetime,
+  `CheckOut` Datetime,
+  `PaymentRate` NVARCHAR(20),
+  `AdditionalDescription` NVARCHAR(MAX)
+);
+
+CREATE TABLE `Trip Details` (
+  `Booking Date` Date,
+  `FlightBookReference` NVARCHAR(20) PK,
+  `Mode` NVARCHAR(20),
+  `Modeoftravel` NVARCHAR(20),
+  `Embarkation` NVARCHAR(20),
+  `Disembarkation` NVARCHAR(20)
+);
+
+CREATE TABLE `Personal Data` (
+  `PK_PersonalData` INT PK,
+  `FirstName` NVARCHAR(20),
+  `MiddleName` NVARCHAR(20) PK,
+  `LastName` NVARCHAR(20),
+  `BirthDate` NVARCHAR(20),
+  `PassportNumber` NVARCHAR(20),
+  `PassportExpriration` NVARCHAR(20),
+  `Email` Type,
+  `ContactNumber` Type,
+  `Address` Type
+);
+
+CREATE TABLE `Guest Details` (
+  `FK_PersonalInformation` INT FK,
+  `Addons` NVARCHAR(50),
+  `FllightBookReference` NVARCHAR(20) FK,
+  FOREIGN KEY (`FllightBookReference`) REFERENCES `Trip Details`(`FlightBookReference`),
+  FOREIGN KEY (`FK_PersonalInformation`) REFERENCES `Personal Data`(`PK_PersonalData`)
+);
+
+CREATE TABLE `Tours Details` (
+  `TourRef` NVARCHAR(20) PK,
+  `ConfirmationNO` NVARCHAR(20),
+  `Country` NVARCHAR(20),
+  `Area` NVARCHAR(20),
+  `DateTime` DateTime,
+  `Email` INT,
+  `mode` NVARCHAR(15),
+  `Modeoftour` NVARCHAR(20),
+  `additionalDescription` Datetime
+);
+
+CREATE TABLE `Booking Details` (
+  `PK_Book` INT PK,
+  `FK_PersonalData` INT FK,
+  `AccomodationRef` NVARCHAR(20)  PK,
+  `BookingDate` NVARCHAR(20),
+  `Status` NVARCHAR(20),
+  `FlightBookReference` NVARCHAR(20),
+  `TourRef` NVARCHAR(20),
+  FOREIGN KEY (`FlightBookReference`) REFERENCES `Trip Details`(`FlightBookReference`),
+  FOREIGN KEY (`TourRef`) REFERENCES `Tours Details`(`TourRef`),
+  FOREIGN KEY (`FK_PersonalData`) REFERENCES `Personal Data`(`PK_PersonalData`),
+  FOREIGN KEY (`AccomodationRef`) REFERENCES `Accomodation Details`(`AccomodationRef`)
+);
+
+CREATE TABLE `Fliigh Details` (
+  `FlightID` INT PK,
+  `Flight No.` NVARCHAR(10),
+  `Airline` NVARCHAR(10),
+  `FlightBookReference` NVARCHAR(20) FK,
+  `DepartCountry` NVARCHAR(5),
+  `DepartAirport` NVARCHAR(15),
+  `DepartTERMINAL` NVARCHAR(15),
+  `DepartDate` DateTime,
+  `ArriCountry` NVARCHAR(5),
+  `ArriAirport` NVARCHAR(15),
+  `ArrivTERMINAL` NVARCHAR(15),
+  `ArrivDate` DateTime,
+  FOREIGN KEY (`FlightBookReference`) REFERENCES `Trip Details`(`FlightBookReference`)
+);
+
