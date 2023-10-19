@@ -138,3 +138,76 @@ CREATE TABLE [BrandSeed] (
   [seed] Nvarchar(50),
   [price] Nvarchar(50)
 );
+
+
+Season Crop
+R:{
+31	32	33			
+}
+FD:{ 31 -> 32 33 27, 1, 9} Highest Normal Form{BCNF} CK:{31}
+CREATE TABLE [SeasonCrop] (
+  [PK_SeasonCrop] INT,
+  [FK_farmerInfo] INT,
+  [FK_brandSeed] INT,
+  [estimatedCost] Decimal,
+  [SubsGrant] Bit,
+  [FK_farmTechnician] INT FK,
+  CONSTRAINT [FK_SeasonCrop.FK_farmerInfo]
+    FOREIGN KEY ([FK_farmerInfo])
+      REFERENCES [BrandSeed]([brandName]),
+  CONSTRAINT [FK_SeasonCrop.FK_farmTechnician]
+    FOREIGN KEY ([FK_farmTechnician])
+      REFERENCES [Farm Technician]([PK_farmTechnician])
+);
+
+
+Season
+R:{
+34	35	36	37		
+}
+FD:{ 34,-> 31, 35, 36, 37} Highest Normal Form{BCNF} CK:{34}
+CREATE TABLE [Season] (
+  [PK_season] INT,
+  [Season] NVARCHAR(25),
+  [dateStart] Date,
+  [dateEnd] Date,
+  [FK_seasonCrop] INT FK,
+  CONSTRAINT [FK_Season.FK_seasonCrop]
+    FOREIGN KEY ([FK_seasonCrop])
+      REFERENCES [SeasonCrop]([PK_SeasonCrop])
+);
+
+
+CompanyProvider
+R:{
+38, 39, 40, 41, 42
+}
+FD:{ 38 -> 39 to 42} Highest Normal Form{BCNF} CK:{34}
+CREATE TABLE [CompanyProvider] (
+  [Company] NVARchar,
+  [PK_BrandName] Nvarchar(25) PK,
+  [OriginalPrice] Decimal,
+  [Classification] Nvarchar(25),
+  [description] Nvarchar(255)
+);
+
+
+CompanyProvider
+R:{
+43 , 44, 45
+}
+FD:{  43 -> 1, 38, 44, 45} Highest Normal Form{BCNF} CK:{43}
+CREATE TABLE [Subsidized] (
+  [PK_subsidized] INT PK,
+  [Date] Date,
+  [SubsidizedPrice] Decimal,
+  [FK_personalInfo] INT FK,
+  [FK_BrandName] INT FK,
+  CONSTRAINT [FK_Subsidized.FK_personalInfo]
+    FOREIGN KEY ([FK_personalInfo])
+      REFERENCES [FarmersInfo]([PK_farmersInfo]),
+  CONSTRAINT [FK_Subsidized.FK_BrandName]
+    FOREIGN KEY ([FK_BrandName])
+      REFERENCES [Company  Provider]([PK_BrandName])
+);
+
