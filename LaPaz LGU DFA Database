@@ -23,89 +23,88 @@ Lossless Join Decomposition
 Database Relations
 R:{
 	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26
-27	28	29	30	31	32	33	34	35	36	37	38	39	40	41	42	43	44	45	46	47	48	49	50	51	52	
+27	28	29	30	31	32	33	34	35	36	37	38	39	40	41	42	43	44	45	46	47	48	49	50	51	52	53	
+54	55	56	57	58	59	60	61	62	63	64	65	66	67	68	69	70	71	72	73	74	75	76	77	78	79	80	
 }
-FD {1 -> 2 to 8 farmeringo,    9-> 10 to 15 farmertech,      16 ->1, 17, 18 landtiill,    19 ->1, 20, 21 contact ,    22 -> 23, 24 livestockinfo   25->26, 22, 1, 9 live stock     27 -> 28, 29, 30 brandseed  31 -> 32 33 27, 1, 9   50,-> 1 10 22 32 38 51}
+FD {1 -> 2 to 8 farmeringo,    9-> 10 to 15 farmertech,  16 ->1, 17, 18 landtiill,  19 ->1, 20, 21 contact ,  22 -> 23, 24 livestockinfo   25->26, 22, 1, 9 live stock     27 -> 28, 29, 30 brandseed  31 -> 32 33 27, 1, 9 season crop   34,-> 31, 35, 36, 37 season
+38 -> 39 to 42 Companyprovider, 43 -> 1, 38, 44, 45 subsidize, 46 -> 47,48 incidentType , 49 -> 46, 1, 9 50 to 52 livestockincident, 53 -> 46, 1, 9, 54 to 56 crop incident
+}
 
-Personal Details
+FarmersInfo
+
 R:{
-1	2	3	4	5	6	7	8	9	10
+1	2	3	4	5	6	7	8
 }
-FD :{ 1 -> 2 to 10} Highest Normal Form(BCNF) CK:{1}
-CREATE TABLE `Personal Data` (
-  `PK_PersonalData` INT PK,
-  `FirstName` NVARCHAR(20),
-  `MiddleName` NVARCHAR(20) PK,
-  `LastName` NVARCHAR(20),
-  `BirthDate` NVARCHAR(20),
-  `PassportNumber` NVARCHAR(20),
-  `PassportExpriration` NVARCHAR(20),
-  `Email` Type,
-  `ContactNumber` Type,
-  `Address` Type
+FD :{ 1 -> 2 to 8} Highest Normal Form(BCNF) CK:{1}
+CREATE TABLE [FarmersInfo] (
+  [PK_farmersInfo] INT,
+  [firstName] NVARCHAR(100),
+  [lastName] NVARCHAR((100,
+  [middleName] Nvarchar(100),
+  [Birthday] Date,
+  [Block] Nvarchar(50),
+  [Street] Nvarchar(50),
+  [baranggay] Nvarchar(5)
 );
 
 
-Accommodation Details
+Farm Technician
 R:{
-11	12	13	14	15	16	17	18	19	20	21
+9	10	11	12	13	14	15
 }	
-FD:{11-> 11 to 21}     Highest Normal Form(BCNF) CK:{11}
+FD:{ 9-> 10 to 15}     Highest Normal Form(BCNF) CK:{9}
 
-CREATE TABLE `Accomodation Details` (
-  `AccomodationRef` NVARCHAR(20) PK,
-  `ConfirmationNO` NVARCHAR(20),
-  `HotelName` NVARCHAR(20),
-  `HotelRate` NVARCHAR(20),
-  `NIghts` INT,
-  `RoomsCount` INT,
-  `HotelPhone` NVARCHAR(15),
-  `Room Description` NVARCHAR(20),
-  `CheckIn` Datetime,
-  `CheckOut` Datetime,
-  `PaymentRate` NVARCHAR(20),
-  `AdditionalDescription` NVARCHAR(MAX)
+CREATE TABLE [Farm Technician] (
+  [PK_farmTechnician] INT PK,
+  [firstname] Nvarchar(25),
+  [middleName] Nvarchar(25),
+  [lastName] Nvarchar(25),
+  [assignBarangay] Nvarchar(10),
+  [desingation] Nvarchar(25),
+  [ContactNumber] Nvarchar(25)
 );
-Tours Details	
+
+LandTill	
 R:{
-23	24	25	26	27	28	29	30	22		
+16	17	18		
 }
-FD:{22 ->23 to 30} Highest Normal Form(BCNF) CK:{22}
-CREATE TABLE `Tours Details` (
-  `TourRef` NVARCHAR(20) PK,
-  `ConfirmationNO` NVARCHAR(20),
-  `Country` NVARCHAR(20),
-  `Area` NVARCHAR(20),
-  `DateTime` DateTime,
-  `Email` INT,
-  `mode` NVARCHAR(15),
-  `Modeoftour` NVARCHAR(20),
-  `additionalDescription` Datetime
+FD:{16 ->1, 17, 18} Highest Normal Form(BCNF) CK:{16}
+CREATE TABLE [LandTill] (
+  [BaranggayLocation] Nvarchar(5),
+  [squareMeter] digit,
+  [ProofofEntitledLand] Nvarchar(25) PK,
+  [PK_farmerInfo] INT FK,
+  CONSTRAINT [FK_LandTill.PK_farmerInfo]
+    FOREIGN KEY ([PK_farmerInfo])
+      REFERENCES [FarmersInfo]([PK_farmersInfo])
 );
-Guest Details
+
+Contact
 R:{
 1	32	33								
 }
-FD:{1 32 -> 33} Highest Normal Form(BCNF) CK:{22}
-CREATE TABLE `Guest Details` (
-  `FK_PersonalInformation` INT FK,
-  `Addons` NVARCHAR(50),
-  `FllightBookReference` NVARCHAR(20) FK,
-  FOREIGN KEY (`FllightBookReference`) REFERENCES `Trip Details`(`FlightBookReference`),
-  FOREIGN KEY (`FK_PersonalInformation`) REFERENCES `Personal Data`(`PK_PersonalData`) );
+FD:{19 ->1, 20, 21} Highest Normal Form(BCNF) CK:{19}
+CREATE TABLE [Contact] (
+  [PK_contact] INT PK,
+  [Cellphone] Nvarchar(12),
+  [Telcom] Nvarchar(50),
+  [FK_farmerInfo] INT FK,
+  CONSTRAINT [FK_Contact.FK_farmerInfo]
+    FOREIGN KEY ([FK_farmerInfo])
+      REFERENCES [FarmersInfo]([PK_farmersInfo])
+);
+
 Trip Details
 R:{
 32	33	34	35	36	37					
 }
-FD:{ 32 -> 33 to 37} Highest Normal Form{BCNF} CK:{32}
-CREATE TABLE `Trip Details` (
-`FlightBookReference` NVARCHAR(20) PK,
-`Booking Date` Date,
-`Mode` NVARCHAR(20),
-  `Modeoftravel` NVARCHAR(20),
-  `Embarkation` NVARCHAR(20),
-  `Disembarkation` NVARCHAR(20)
+FD:{ 22 -> 23, 24} Highest Normal Form{BCNF} CK:{22}
+CREATE TABLE [liveStockinfo] (
+  [PK_liveStockInfo]  INT PK ,
+  [liveStockinfo]  Nvarchar(50) ,
+ [Description]  Nvarchar(100) 
 );
+
 Flight Details
 R:{
 38	39	40	41	42	43	44	45	46	47	48
