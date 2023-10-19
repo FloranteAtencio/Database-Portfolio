@@ -94,9 +94,9 @@ CREATE TABLE [Contact] (
       REFERENCES [FarmersInfo]([PK_farmersInfo])
 );
 
-Trip Details
+Live Stock Info
 R:{
-32	33	34	35	36	37					
+22	23	24					
 }
 FD:{ 22 -> 23, 24} Highest Normal Form{BCNF} CK:{22}
 CREATE TABLE [liveStockinfo] (
@@ -105,41 +105,36 @@ CREATE TABLE [liveStockinfo] (
  [Description]  Nvarchar(100) 
 );
 
-Flight Details
+Live Stock
 R:{
-38	39	40	41	42	43	44	45	46	47	48
+25	26	22	1	9	
 }
-FD:{ 38->32, 39 to 48,  40 -> 41 to 43,  44 -> 45 to 48 } Highest Normal Form{2NF} CK:{38}
-CREATE TABLE `Fliigh Details` (
-  `FlightID` INT PK,
-  `Flight No.` NVARCHAR(10),
-  `Airline` NVARCHAR(10),
-  `FlightBookReference` NVARCHAR(20) FK,
-  `DepartCountry` NVARCHAR(5),
-  `DepartAirport` NVARCHAR(15),
-  `DepartTERMINAL` NVARCHAR(15),
-  `DepartDate` DateTime,
-  `ArriCountry` NVARCHAR(5),
-  `ArriAirport` NVARCHAR(15),
-  `ArrivTERMINAL` NVARCHAR(15),
-  `ArrivDate` DateTime,
-  FOREIGN KEY (`FlightBookReference`) REFERENCES `Trip Details`(`FlightBookReference`)
+FD:{ 25->26, 22, 1, 9 } Highest Normal Form{2NF} CK:{25}
+CREATE TABLE [LiveStock] (
+  [PK_LiveStock] INT,
+  [FK_personalInf] INT,
+  [FK_liveStock] INT,
+  [quantity] INT,
+  [FK_farmTechnician] INT FK,
+  CONSTRAINT [FK_LiveStock.FK_personalInf]
+    FOREIGN KEY ([FK_personalInf])
+      REFERENCES [FarmersInfo]([PK_farmersInfo]),
+  CONSTRAINT [FK_LiveStock.FK_liveStock]
+    FOREIGN KEY ([FK_liveStock])
+      REFERENCES [liveStockinfo]([INT PK]),
+  CONSTRAINT [FK_LiveStock.FK_farmTechnician]
+    FOREIGN KEY ([FK_farmTechnician])
+      REFERENCES [Farm Technician]([PK_farmTechnician])
 );
-Booking Details
+
+Brand Seed
 R:{
-50	1	10	22	32	38	51				
+27	28	29	30				
 }
-FD:{ 50,-> 1 10 22 32 38 51 } Highest Normal Form{BCNF} CK:{50}
-CREATE TABLE `Booking Details` (
-  `PK_Book` INT PK,
-  `FK_PersonalData` INT FK,
-  `AccomodationRef` NVARCHAR(20)  PK,
-  `BookingDate` NVARCHAR(20),
-  `Status` NVARCHAR(20),
-  `FlightBookReference` NVARCHAR(20),
-  `TourRef` NVARCHAR(20),
-  FOREIGN KEY (`FlightBookReference`) REFERENCES `Trip Details`(`FlightBookReference`),
-  FOREIGN KEY (`TourRef`) REFERENCES `Tours Details`(`TourRef`),
-  FOREIGN KEY (`FK_PersonalData`) REFERENCES `Personal Data`(`PK_PersonalData`),
-  FOREIGN KEY (`AccomodationRef`) REFERENCES `Accomodation Details`(`AccomodationRef`)
+FD:{ 27 -> 28, 29, 30} Highest Normal Form{BCNF} CK:{27}
+CREATE TABLE [BrandSeed] (
+  [PK_brandSeed] INT,
+  [brandName] Nvarchar(50),
+  [seed] Nvarchar(50),
+  [price] Nvarchar(50)
 );
