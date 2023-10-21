@@ -24,14 +24,14 @@ Database Relations
 R:{
 	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26
 27	28	29	30	31	32	33	34	35	36	37	38	39	40	41	42	43	44	45	46	47	48	49	50	51	52	53	
-54	55	56	57	58	59	60	61	62	63	64	65	66	67	68	69	70	71	72	73	74	75	76	77	78	79	80	
+54	55	56		
 }
+
 FD {1 -> 2 to 8 farmeringo,    9-> 10 to 15 farmertech,  16 ->1, 17, 18 landtiill,  19 ->1, 20, 21 contact ,  22 -> 23, 24 livestockinfo   25->26, 22, 1, 9 live stock     27 -> 28, 29, 30 brandseed  31 -> 32 33 27, 1, 9 season crop   34,-> 31, 35, 36, 37 season
 38 -> 39 to 42 Companyprovider, 43 -> 1, 38, 44, 45 subsidize, 46 -> 47,48 incidentType , 49 -> 46, 1, 9 50 to 52 livestockincident, 53 -> 46, 1, 9, 54 to 56 crop incident
 }
 
 FarmersInfo
-
 R:{
 1	2	3	4	5	6	7	8
 }
@@ -53,7 +53,6 @@ R:{
 9	10	11	12	13	14	15
 }	
 FD:{ 9-> 10 to 15}     Highest Normal Form(BCNF) CK:{9}
-
 CREATE TABLE [Farm Technician] (
   [PK_farmTechnician] INT PK,
   [firstname] Nvarchar(25),
