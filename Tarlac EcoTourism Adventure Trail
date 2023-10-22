@@ -155,7 +155,7 @@ CREATE TABLE [Schedule] (
 
 
 
-reviews
+Reviews
 R:{
 33 	34	35	36		
 }
@@ -177,105 +177,4 @@ CREATE TABLE [Reviews] (
   CONSTRAINT [FK_Reviews.FK_Tour]
     FOREIGN KEY ([FK_Tour])
       REFERENCES [Tours]([PK_Tour])
-);
-
-
-
-CompanyProvider
-R:{
-38, 39, 40, 41, 42
-}
-FD:{ 38 -> 39 to 42} Highest Normal Form{BCNF} CK:{34}
-CREATE TABLE [CompanyProvider] (
-  [Company] NVARchar,
-  [PK_BrandName] Nvarchar(25) PK,
-  [OriginalPrice] Decimal,
-  [Classification] Nvarchar(25),
-  [description] Nvarchar(255)
-);
-
-
-Subsidized
-R:{
-43 , 44, 45
-}
-FD:{  43 -> 1, 38, 44, 45} Highest Normal Form{BCNF} CK:{43}
-CREATE TABLE [Subsidized] (
-  [PK_subsidized] INT PK,
-  [Date] Date,
-  [SubsidizedPrice] Decimal,
-  [FK_personalInfo] INT FK,
-  [FK_BrandName] INT FK,
-  CONSTRAINT [FK_Subsidized.FK_personalInfo]
-    FOREIGN KEY ([FK_personalInfo])
-      REFERENCES [FarmersInfo]([PK_farmersInfo]),
-  CONSTRAINT [FK_Subsidized.FK_BrandName]
-    FOREIGN KEY ([FK_BrandName])
-      REFERENCES [Company  Provider]([PK_BrandName])
-);
-
-
-Incident Type
-R:{
-46 , 47, 48
-}
-FD:{46 -> 47,48} Highest Normal Form{BCNF} CK:{46}
-CREATE TABLE [Incident Type] (
-  [PK_incidentType] INT PK,
-  [incidentType] Nvarchar(255),
-  [description] Nvarchar(255),
-  CONSTRAINT [FK_Incident Type.PK_incidentType]
-    FOREIGN KEY ([PK_incidentType])
-      REFERENCES [Stock Incident]([FK_incidentType]),
-  CONSTRAINT [FK_Incident Type.PK_incidentType]
-    FOREIGN KEY ([PK_incidentType])
-      REFERENCES [Crop Incident]([FK_incidentType])
-);
-
-
-
-
-Stock Incident
-R:{
-49, 50, 51, 52
-}
-FD:{49 -> 46, 1, 9 50 to 52} Highest Normal Form{BCNF} CK:{49}
-CREATE TABLE [Stock Incident] (
-  [PK_stockIncident] INT FK,
-  [FK_personalInfo] INT FK,
-  [descriptionAdd] Nvarchar(255),
-  [dateOccured] date,
-  [dateReported] date,
-  [FK_incidentType] INT FK,
-  [FK_farmTechnician] INT FK,
-  CONSTRAINT [FK_Stock Incident.FK_farmTechnician]
-    FOREIGN KEY ([FK_farmTechnician])
-      REFERENCES [Farm Technician]([PK_farmTechnician]),
-  CONSTRAINT [FK_Stock Incident.FK_personalInfo]
-    FOREIGN KEY ([FK_personalInfo])
-      REFERENCES [FarmersInfo]([PK_farmersInfo])
-);
-
-
-
-
-Crop Incident
-R:{
-53,54,55,56
-}
-FD:{53 -> 46, 1, 9, 54 to 56} Highest Normal Form{BCNF} CK:{53}
-CREATE TABLE [Crop Incident] (
-  [PK_cropIncident] INT PK,
-  [FK_personalInfo] INT FK,
-  [dateOccured] date,
-  [dareReported] date,
-  [descriptionAdd] Nvarchar(255),
-  [FK_incidentType] INT FK,
-  [FK_farmTechnician] INT FK,
-  CONSTRAINT [FK_Crop Incident.FK_personalInfo]
-    FOREIGN KEY ([FK_personalInfo])
-      REFERENCES [FarmersInfo]([PK_farmersInfo]),
-  CONSTRAINT [FK_Crop Incident.FK_farmTechnician]
-    FOREIGN KEY ([FK_farmTechnician])
-      REFERENCES [Farm Technician]([PK_farmTechnician])
 );
