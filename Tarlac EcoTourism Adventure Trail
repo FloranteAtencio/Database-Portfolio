@@ -44,133 +44,141 @@ CREATE TABLE [Customers] (
 );
 
 
-Farm Technician
+
+
+Tour Guides
 R:{
-9	10	11	12	13	14	15
+7	8	9	10	11	
 }	
-FD:{ 9-> 10 to 15}     Highest Normal Form(BCNF) CK:{9}
-CREATE TABLE [Farm Technician] (
-  [PK_farmTechnician] INT PK,
-  [firstname] Nvarchar(25),
-  [middleName] Nvarchar(25),
-  [lastName] Nvarchar(25),
-  [assignBarangay] Nvarchar(10),
-  [desingation] Nvarchar(25),
-  [ContactNumber] Nvarchar(25)
+FD:{ 7-> 8 to 11}     Highest Normal Form(BCNF) CK:{7}
+CREATE TABLE [TourGuides] (
+  [PK_Guides] INT PK,
+  [firstNam] NVARCHAR(10),
+  [LastNam] NVARCHAR(100),
+  [Contact] NVARCHAR(50),
+  [Bio] Text
 );
 
-LandTill	
+
+
+
+location
 R:{
-16	17	18		
+12 13 14 15 16 17	
 }
-FD:{16 ->1, 17, 18} Highest Normal Form(BCNF) CK:{16}
-CREATE TABLE [LandTill] (
-  [BaranggayLocation] Nvarchar(5),
-  [squareMeter] digit,
-  [ProofofEntitledLand] Nvarchar(25) PK,
-  [PK_farmerInfo] INT FK,
-  CONSTRAINT [FK_LandTill.PK_farmerInfo]
-    FOREIGN KEY ([PK_farmerInfo])
-      REFERENCES [FarmersInfo]([PK_farmersInfo])
+FD:{12 ->13 to 17 } Highest Normal Form(BCNF) CK:{12}
+CREATE TABLE [Location] (
+  [PK_location] INT PK,
+  [Municipality] NVARCHAR(100),
+  [City] NVARCHAR(100),
+  [Region] NVARCHAR(100),
+  [Description] TEXT,
+  [History] TEXT,
+  CONSTRAINT [FK_Location.PK_location]
+    FOREIGN KEY ([PK_location])
+      REFERENCES [Tours]([PK_Location])
 );
 
-Contact
+Activity
 R:{
-1	32	33								
+18	19	20				
 }
-FD:{19 ->1, 20, 21} Highest Normal Form(BCNF) CK:{19}
-CREATE TABLE [Contact] (
-  [PK_contact] INT PK,
-  [Cellphone] Nvarchar(12),
-  [Telcom] Nvarchar(50),
-  [FK_farmerInfo] INT FK,
-  CONSTRAINT [FK_Contact.FK_farmerInfo]
-    FOREIGN KEY ([FK_farmerInfo])
-      REFERENCES [FarmersInfo]([PK_farmersInfo])
+FD:{ 18 -> 12, 19 20 } Highest Normal Form{BCNF} CK:{18}
+CREATE TABLE [Activity] (
+  [PK_Activity] INT PK,
+  [Activity] NVARCHAR(100),
+  [FK_Location] INT,
+  [Description] TEXT,
+  CONSTRAINT [FK_Activity.FK_Location]
+    FOREIGN KEY ([FK_Location])
+      REFERENCES [Location]([PK_location])
 );
 
-Live Stock Info
+
+
+Tours
 R:{
-22	23	24					
+21, 22, 23
 }
-FD:{ 22 -> 23, 24} Highest Normal Form{BCNF} CK:{22}
-CREATE TABLE [liveStockinfo] (
-  [PK_liveStockInfo]  INT PK ,
-  [liveStockinfo]  Nvarchar(50) ,
- [Description]  Nvarchar(100) 
+FD:{ 21 -> 12 22,23  } Highest Normal Form{2NF} CK:{21}
+CREATE TABLE [Tours] (
+  [PK_Tour] INT PK,
+  [TourNam] NVARCHAR(100),
+  [Description] TEXT,
+  [FK_Location] INT ,
+  [Price] Decimal(10,2)
 );
 
-Live Stock
+
+Booking
 R:{
-25	26	22	1	9	
+24	25	26	27				
 }
-FD:{ 25->26, 22, 1, 9 } Highest Normal Form{2NF} CK:{25}
-CREATE TABLE [LiveStock] (
-  [PK_LiveStock] INT,
-  [FK_personalInf] INT,
-  [FK_liveStock] INT,
-  [quantity] INT,
-  [FK_farmTechnician] INT FK,
-  CONSTRAINT [FK_LiveStock.FK_personalInf]
-    FOREIGN KEY ([FK_personalInf])
-      REFERENCES [FarmersInfo]([PK_farmersInfo]),
-  CONSTRAINT [FK_LiveStock.FK_liveStock]
-    FOREIGN KEY ([FK_liveStock])
-      REFERENCES [liveStockinfo]([INT PK]),
-  CONSTRAINT [FK_LiveStock.FK_farmTechnician]
-    FOREIGN KEY ([FK_farmTechnician])
-      REFERENCES [Farm Technician]([PK_farmTechnician])
+FD:{ 24->25, 26, 27, 21, 1, 7  } Highest Normal Form{BCNF} CK:{24}
+CREATE TABLE [Booking] (
+  [PK_Booking] INT PK,
+  [FK_Tour] INT ,
+  [FK_Customer] INT ,
+  [FK_Guide] INT,
+  [BookingDate] DateTime,
+  [Confirmation] Bit,
+  [Paid] Nvarchar(100),
+  CONSTRAINT [FK_Booking.PK_Booking]
+    FOREIGN KEY ([PK_Booking])
+      REFERENCES [Schedule]([FK_Booking]),
+  CONSTRAINT [FK_Booking.FK_Customer]
+    FOREIGN KEY ([FK_Customer])
+      REFERENCES [Customers]([PK_Customer]),
+  CONSTRAINT [FK_Booking.FK_Guide]
+    FOREIGN KEY ([FK_Guide])
+      REFERENCES [TourGuides]([PK_Guides]),
+  CONSTRAINT [FK_Booking.FK_Tour]
+    FOREIGN KEY ([FK_Tour])
+      REFERENCES [Tours]([PK_Tour])
 );
 
-Brand Seed
+
+
+schedule
 R:{
-27	28	29	30				
+28 29 31 32		
 }
-FD:{ 27 -> 28, 29, 30} Highest Normal Form{BCNF} CK:{27}
-CREATE TABLE [BrandSeed] (
-  [PK_brandSeed] INT,
-  [brandName] Nvarchar(50),
-  [seed] Nvarchar(50),
-  [price] Nvarchar(50)
+FD:{ 28 -> 29 to 32, 24} Highest Normal Form{BCNF} CK:{31}
+CREATE TABLE [Schedule] (
+  [PK_Schedule] INT PK,
+  [FK_Booking] INT ,
+  [ArrivalDate] DateTime,
+  [DepartureDate] DateTime,
+  [Description] Text,
+  [Duration] INT
 );
 
 
-Season Crop
+
+reviews
 R:{
-31	32	33			
+33 	34	35	36		
 }
-FD:{ 31 -> 32 33 27, 1, 9} Highest Normal Form{BCNF} CK:{31}
-CREATE TABLE [SeasonCrop] (
-  [PK_SeasonCrop] INT,
-  [FK_farmerInfo] INT,
-  [FK_brandSeed] INT,
-  [estimatedCost] Decimal,
-  [SubsGrant] Bit,
-  [FK_farmTechnician] INT FK,
-  CONSTRAINT [FK_SeasonCrop.FK_farmerInfo]
-    FOREIGN KEY ([FK_farmerInfo])
-      REFERENCES [BrandSeed]([brandName]),
-  CONSTRAINT [FK_SeasonCrop.FK_farmTechnician]
-    FOREIGN KEY ([FK_farmTechnician])
-      REFERENCES [Farm Technician]([PK_farmTechnician])
+FD:{ 33 -> 34, 35, 36, 1, 7 , 21 } Highest Normal Form{BCNF} CK:{33}
+CREATE TABLE [Reviews] (
+  [PK_Revies] INT PK,
+  [FK_Tour] INT ,
+  [FK_Customer] INT,
+  [Rating] INT,
+  [Comment] DateTime,
+  [FK_Guide] INT,
+  [GuideRating] INT,
+  CONSTRAINT [FK_Reviews.FK_Customer]
+    FOREIGN KEY ([FK_Customer])
+      REFERENCES [Customers]([PK_Customer]),
+  CONSTRAINT [FK_Reviews.FK_Guide]
+    FOREIGN KEY ([FK_Guide])
+      REFERENCES [TourGuides]([PK_Guides]),
+  CONSTRAINT [FK_Reviews.FK_Tour]
+    FOREIGN KEY ([FK_Tour])
+      REFERENCES [Tours]([PK_Tour])
 );
 
-
-Season
-R:{
-34	35	36	37		
-}
-FD:{ 34,-> 31, 35, 36, 37} Highest Normal Form{BCNF} CK:{34}
-CREATE TABLE [Season] (
-  [PK_season] INT,
-  [Season] NVARCHAR(25),
-  [dateStart] Date,
-  [dateEnd] Date,
-  [FK_seasonCrop] INT FK,
-  CONSTRAINT [FK_Season.FK_seasonCrop]
-    FOREIGN KEY ([FK_seasonCrop])
-      REFERENCES [SeasonCrop]([PK_SeasonCrop])
-);
 
 
 CompanyProvider
