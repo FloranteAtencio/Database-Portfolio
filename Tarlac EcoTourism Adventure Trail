@@ -1,0 +1,275 @@
+Tarlac EcoTourism Adventure Trail
+1st Normal Form:
+•	Each attribute should contain atomic value.
+•	A column should contain value from the same domain.
+•	Each column should have a unique name. 
+•	No ordering to rows and columns.
+•	No duplicate rows.
+2ND Normal Form
+•	It must be 1st Normal Form.
+•	No Patial dependency in the relation (Partial dependency occurs when the left-hand side of a candidate key points non-prime attributes).
+3rd Normal Form
+•	It must be 2nd Normal Form.																         
+•	No transitive dependency for non-prime attributes (To be non-transitive and 3NF at least one of these must be true: Either the left-hand side of functional dependency is super key or the right-hand side points to a prime attribute).
+BCNF
+•	if it is 3NF. 
+•	For each functional dependency there must be a super key.
+Preserving Dependency Decomposition
+•	is another property of decomposed relational database schema D in which each functional dependency X -> Y specified in F either appeared directly in one of the relation schemas Ri in the decomposed D or could be inferred from the dependencies that appear in some Ri.
+
+Lossless Join Decomposition
+•	Lossless join decomposition is a decomposition of a relation R into relations R1, R2 such that if we perform a natural join of relation R1 and R2, it will return the original relation R. This is effective in removing redundancies from databases while preserving the original data.
+
+Database Relations
+R:{
+	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26
+27	28	29	30	31	32	33	34	35	36	37	38	39	40	41	42	43	44	45	46	47	48	49	50	51	52	53	
+54	55	56		
+}
+
+FD {1 -> 2 to 6 farmeringo,    9-> 10 to 15 farmertech,  16 ->1, 17, 18 landtiill,  19 ->1, 20, 21 contact ,  22 -> 23, 24 livestockinfo   25->26, 22, 1, 9 live stock     27 -> 28, 29, 30 brandseed  31 -> 32 33 27, 1, 9 season crop   34,-> 31, 35, 36, 37 season
+38 -> 39 to 42 Companyprovider, 43 -> 1, 38, 44, 45 subsidize, 46 -> 47,48 incidentType , 49 -> 46, 1, 9 50 to 52 livestockincident, 53 -> 46, 1, 9, 54 to 56 crop incident
+}
+
+FarmersInfo
+R:{
+1	2	3	4	5	6	
+}
+FD :{ 1 -> 2 to 6} Highest Normal Form(BCNF) CK:{1}
+CREATE TABLE [Customers] (
+  [PK_Customer] INT PK,
+  [FirstName] NVARCHAR(100),
+  [LastName] NVARCHAR(100),
+  [MiddleName] NVARCHAR(100),
+  [Email] NVARCHAR(100),
+  [Address] TEXT
+);
+
+
+Farm Technician
+R:{
+9	10	11	12	13	14	15
+}	
+FD:{ 9-> 10 to 15}     Highest Normal Form(BCNF) CK:{9}
+CREATE TABLE [Farm Technician] (
+  [PK_farmTechnician] INT PK,
+  [firstname] Nvarchar(25),
+  [middleName] Nvarchar(25),
+  [lastName] Nvarchar(25),
+  [assignBarangay] Nvarchar(10),
+  [desingation] Nvarchar(25),
+  [ContactNumber] Nvarchar(25)
+);
+
+LandTill	
+R:{
+16	17	18		
+}
+FD:{16 ->1, 17, 18} Highest Normal Form(BCNF) CK:{16}
+CREATE TABLE [LandTill] (
+  [BaranggayLocation] Nvarchar(5),
+  [squareMeter] digit,
+  [ProofofEntitledLand] Nvarchar(25) PK,
+  [PK_farmerInfo] INT FK,
+  CONSTRAINT [FK_LandTill.PK_farmerInfo]
+    FOREIGN KEY ([PK_farmerInfo])
+      REFERENCES [FarmersInfo]([PK_farmersInfo])
+);
+
+Contact
+R:{
+1	32	33								
+}
+FD:{19 ->1, 20, 21} Highest Normal Form(BCNF) CK:{19}
+CREATE TABLE [Contact] (
+  [PK_contact] INT PK,
+  [Cellphone] Nvarchar(12),
+  [Telcom] Nvarchar(50),
+  [FK_farmerInfo] INT FK,
+  CONSTRAINT [FK_Contact.FK_farmerInfo]
+    FOREIGN KEY ([FK_farmerInfo])
+      REFERENCES [FarmersInfo]([PK_farmersInfo])
+);
+
+Live Stock Info
+R:{
+22	23	24					
+}
+FD:{ 22 -> 23, 24} Highest Normal Form{BCNF} CK:{22}
+CREATE TABLE [liveStockinfo] (
+  [PK_liveStockInfo]  INT PK ,
+  [liveStockinfo]  Nvarchar(50) ,
+ [Description]  Nvarchar(100) 
+);
+
+Live Stock
+R:{
+25	26	22	1	9	
+}
+FD:{ 25->26, 22, 1, 9 } Highest Normal Form{2NF} CK:{25}
+CREATE TABLE [LiveStock] (
+  [PK_LiveStock] INT,
+  [FK_personalInf] INT,
+  [FK_liveStock] INT,
+  [quantity] INT,
+  [FK_farmTechnician] INT FK,
+  CONSTRAINT [FK_LiveStock.FK_personalInf]
+    FOREIGN KEY ([FK_personalInf])
+      REFERENCES [FarmersInfo]([PK_farmersInfo]),
+  CONSTRAINT [FK_LiveStock.FK_liveStock]
+    FOREIGN KEY ([FK_liveStock])
+      REFERENCES [liveStockinfo]([INT PK]),
+  CONSTRAINT [FK_LiveStock.FK_farmTechnician]
+    FOREIGN KEY ([FK_farmTechnician])
+      REFERENCES [Farm Technician]([PK_farmTechnician])
+);
+
+Brand Seed
+R:{
+27	28	29	30				
+}
+FD:{ 27 -> 28, 29, 30} Highest Normal Form{BCNF} CK:{27}
+CREATE TABLE [BrandSeed] (
+  [PK_brandSeed] INT,
+  [brandName] Nvarchar(50),
+  [seed] Nvarchar(50),
+  [price] Nvarchar(50)
+);
+
+
+Season Crop
+R:{
+31	32	33			
+}
+FD:{ 31 -> 32 33 27, 1, 9} Highest Normal Form{BCNF} CK:{31}
+CREATE TABLE [SeasonCrop] (
+  [PK_SeasonCrop] INT,
+  [FK_farmerInfo] INT,
+  [FK_brandSeed] INT,
+  [estimatedCost] Decimal,
+  [SubsGrant] Bit,
+  [FK_farmTechnician] INT FK,
+  CONSTRAINT [FK_SeasonCrop.FK_farmerInfo]
+    FOREIGN KEY ([FK_farmerInfo])
+      REFERENCES [BrandSeed]([brandName]),
+  CONSTRAINT [FK_SeasonCrop.FK_farmTechnician]
+    FOREIGN KEY ([FK_farmTechnician])
+      REFERENCES [Farm Technician]([PK_farmTechnician])
+);
+
+
+Season
+R:{
+34	35	36	37		
+}
+FD:{ 34,-> 31, 35, 36, 37} Highest Normal Form{BCNF} CK:{34}
+CREATE TABLE [Season] (
+  [PK_season] INT,
+  [Season] NVARCHAR(25),
+  [dateStart] Date,
+  [dateEnd] Date,
+  [FK_seasonCrop] INT FK,
+  CONSTRAINT [FK_Season.FK_seasonCrop]
+    FOREIGN KEY ([FK_seasonCrop])
+      REFERENCES [SeasonCrop]([PK_SeasonCrop])
+);
+
+
+CompanyProvider
+R:{
+38, 39, 40, 41, 42
+}
+FD:{ 38 -> 39 to 42} Highest Normal Form{BCNF} CK:{34}
+CREATE TABLE [CompanyProvider] (
+  [Company] NVARchar,
+  [PK_BrandName] Nvarchar(25) PK,
+  [OriginalPrice] Decimal,
+  [Classification] Nvarchar(25),
+  [description] Nvarchar(255)
+);
+
+
+Subsidized
+R:{
+43 , 44, 45
+}
+FD:{  43 -> 1, 38, 44, 45} Highest Normal Form{BCNF} CK:{43}
+CREATE TABLE [Subsidized] (
+  [PK_subsidized] INT PK,
+  [Date] Date,
+  [SubsidizedPrice] Decimal,
+  [FK_personalInfo] INT FK,
+  [FK_BrandName] INT FK,
+  CONSTRAINT [FK_Subsidized.FK_personalInfo]
+    FOREIGN KEY ([FK_personalInfo])
+      REFERENCES [FarmersInfo]([PK_farmersInfo]),
+  CONSTRAINT [FK_Subsidized.FK_BrandName]
+    FOREIGN KEY ([FK_BrandName])
+      REFERENCES [Company  Provider]([PK_BrandName])
+);
+
+
+Incident Type
+R:{
+46 , 47, 48
+}
+FD:{46 -> 47,48} Highest Normal Form{BCNF} CK:{46}
+CREATE TABLE [Incident Type] (
+  [PK_incidentType] INT PK,
+  [incidentType] Nvarchar(255),
+  [description] Nvarchar(255),
+  CONSTRAINT [FK_Incident Type.PK_incidentType]
+    FOREIGN KEY ([PK_incidentType])
+      REFERENCES [Stock Incident]([FK_incidentType]),
+  CONSTRAINT [FK_Incident Type.PK_incidentType]
+    FOREIGN KEY ([PK_incidentType])
+      REFERENCES [Crop Incident]([FK_incidentType])
+);
+
+
+
+
+Stock Incident
+R:{
+49, 50, 51, 52
+}
+FD:{49 -> 46, 1, 9 50 to 52} Highest Normal Form{BCNF} CK:{49}
+CREATE TABLE [Stock Incident] (
+  [PK_stockIncident] INT FK,
+  [FK_personalInfo] INT FK,
+  [descriptionAdd] Nvarchar(255),
+  [dateOccured] date,
+  [dateReported] date,
+  [FK_incidentType] INT FK,
+  [FK_farmTechnician] INT FK,
+  CONSTRAINT [FK_Stock Incident.FK_farmTechnician]
+    FOREIGN KEY ([FK_farmTechnician])
+      REFERENCES [Farm Technician]([PK_farmTechnician]),
+  CONSTRAINT [FK_Stock Incident.FK_personalInfo]
+    FOREIGN KEY ([FK_personalInfo])
+      REFERENCES [FarmersInfo]([PK_farmersInfo])
+);
+
+
+
+
+Crop Incident
+R:{
+53,54,55,56
+}
+FD:{53 -> 46, 1, 9, 54 to 56} Highest Normal Form{BCNF} CK:{53}
+CREATE TABLE [Crop Incident] (
+  [PK_cropIncident] INT PK,
+  [FK_personalInfo] INT FK,
+  [dateOccured] date,
+  [dareReported] date,
+  [descriptionAdd] Nvarchar(255),
+  [FK_incidentType] INT FK,
+  [FK_farmTechnician] INT FK,
+  CONSTRAINT [FK_Crop Incident.FK_personalInfo]
+    FOREIGN KEY ([FK_personalInfo])
+      REFERENCES [FarmersInfo]([PK_farmersInfo]),
+  CONSTRAINT [FK_Crop Incident.FK_farmTechnician]
+    FOREIGN KEY ([FK_farmTechnician])
+      REFERENCES [Farm Technician]([PK_farmTechnician])
+);
