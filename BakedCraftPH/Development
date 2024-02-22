@@ -1,1 +1,282 @@
-Sample
+DROP DATABASE IF EXISTS bakedcraftph;
+
+CREATE DATABASE bakedcraftph;
+
+USE bakedcraftph;
+
+CREATE TABLE `ShareHolder` (
+  `PK_shareholder` VARCHAR(10) PRIMARY KEY,
+  `First` VARCHAR(50),
+  `Middle` VARCHAR(50),
+  `Last` VARCHAR(50),
+  `contact` VARCHAR(13),
+  `email` VARCHAR(40)
+);
+
+CREATE TABLE `Share` (
+  `PK_share` VARCHAR(10) PRIMARY KEY,
+  `Shared` DECIMAL(10,2),
+  `FK_shareholder` VARCHAR(10),
+  `Date` DATETIME,
+  `description` TEXT,
+  FOREIGN KEY (`FK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
+);
+
+CREATE TABLE `MaterialStats` (
+  `Stock` INT,
+  `Description` Text,
+  `Status` VARCHAR(10),
+  `PK_material` VARCHAR(10) PRIMARY KEY
+);
+
+CREATE TABLE `MaterialsAdded` (
+  `PK_materialAdded` VARCHAR(10) PRIMARY KEY,
+  `FK_material` VARCHAR(10) ,
+  `description` TEXT,
+  `quantity` INT,
+  `price` DECIMAL(10,2),
+  `unit` VARCHAR(50),
+  `date` DATE,
+  `FK_share` VARCHAR(10),
+  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`),
+  FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
+);
+
+CREATE TABLE `Neccesity` (
+  `PK_necessity` VARCHAR(10) PRIMARY KEY,
+  `necessity` VARCHAR(50),
+  `price` DECIMAL(10,2),
+  `description` TEXT,
+  `date` DATE,
+  `FK_share` VARCHAR(10),
+  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`)
+);
+
+CREATE TABLE `ExpensesLog` (
+  `PK_expenses` VARCHAR(10) PRIMARY KEY,
+  `date` DATE,
+  `FK_expenses_Neccesity_material` VARCHAR(10),
+  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `Neccesity`(`PK_necessity`),
+  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `MaterialsAdded`(`PK_materialAdded`)
+);
+
+CREATE TABLE `PaymentMethod` (
+  `PK_paymentMethod` VARCHAR(10) PRIMARY KEY,
+  `paymentMethod` VARCHAR(50),
+  `description` TEXT,
+  `discountRate` Decimal(2,2),
+  `PK_shareholder` VARCHAR(10),
+  FOREIGN KEY (`PK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
+);
+
+CREATE TABLE `Products` (
+  `PK_productName` VARCHAR(10) PRIMARY KEY,
+  `desription` TEXT,
+  `price` DECIMAL(10,2),
+  `stock` INT,
+  `unit` VARCHAR(25),
+  `status` BOOL
+);
+
+CREATE TABLE `ProductMade` (
+  `PK_productsLog` VARCHAR(10) PRIMARY KEY,
+  `FK_productName` VARCHAR(50),
+  `Date` DATE,
+  `quantitty` INT,
+  `description` TEXT,
+  `status` BOOL,
+  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`)
+);
+
+CREATE TABLE `MaterialNeeded` (
+  `FK_productName` VARCHAR(10) ,
+  `FK_material` VARCHAR(10) ,
+  FOREIGN KEY (`FK_productName`) REFERENCES `ProductMade`(`FK_productName`),
+  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`),
+  FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
+);
+
+CREATE TABLE `Orders` (
+  `PK_Order` VARCHAR(10) PRIMARY KEY,
+  `orderDate` DATETIME,
+  `status` Bool,
+  `FK_paymentMethod` VARCHAR(10),
+  FOREIGN KEY (`FK_paymentMethod`) REFERENCES `PaymentMethod`(`PK_paymentMethod`)
+);
+
+CREATE TABLE `orderDetails` (
+  `PK_orderDetails` VARCHAR(10) PRIMARY KEY,
+  `FK_orderID` VARCHAR(10),
+  `FK_productName` VARCHAR(10) ,
+  `quantity` INT,
+  `status` BOOL,
+  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`),
+  FOREIGN KEY (`FK_orderID`) REFERENCES `Orders`(`PK_Order`)
+);
+
+
+DELIMITER $$
+CREATE TRIGGER Products_Update_Stocks 
+AFTER INSERT ON ProductMade 
+FOR EACH ROW
+BEGIN
+
+DECLARE counts INT;
+
+SELECT COUNT(*) 
+INTO counts
+FROM Products
+WHERE PK_productName = NEW.FK_productName;
+
+IF (counts > 0)
+THEN
+
+UPDATE Products SET stock = stock + NEW.quantity
+Where PK_productName = NEW.FK_productName;
+
+UPDATE MaterialStats 
+INNER JOIN MaterialNeeded
+ON MaterialStats.PK_material = MaterialNeeded.FK_material
+SET MaterialStats.stock = MaterialStats.stock - NEW.quantity 
+WHERE MaterialNeeded.FK_productName = NEW.FK_productName;
+
+END IF;
+
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER Material_Update_Stocks 
+AFTER INSERT ON MaterialsAdded
+FOR EACH ROW
+BEGIN
+
+DECLARE counts INT;
+
+SELECT COUNT(*) 
+INTO counts
+FROM MaterialStats
+WHERE PK_material = NEW.FK_material;
+
+IF (counts > 0)
+THEN
+UPDATE MaterialStats SET Stock = Stock + NEW.quantity
+Where PK_material = NEW.FK_material;
+END IF;
+
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER Material_Logs 
+AFTER INSERT ON MaterialsAdded
+FOR EACH ROW
+BEGIN
+
+INSERT INTO ExpensesLog(PK_expenses, date, FK_expenses_Neccesity_material)
+VALUES (
+CONVERT( CONCAT(MONTH(NOW()),DAY(NOW()),HOUR(NOW()),MINUTE(NOW()),SECOND(NOW()) ), CHAR)
+,DATE(NOW())
+,NEW.PK_materialAdded);
+
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER material_log_neccesity
+AFTER INSERT ON Neccesity
+FOR EACH ROW	
+BEGIN
+
+INSERT INTO ExpensesLog(PK_expenses, date, FK_expenses_Neccesity_material)
+VALUES (
+CONVERT( CONCAT(MONTH(NOW()),DAY(NOW()),HOUR(NOW()),MINUTE(NOW()),SECOND(NOW()) ), CHAR)
+,DATE(NOW())
+,NEW.PK_necessity);
+
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER Order_update_stock
+AFTER INSERT ON Orders
+FOR EACH ROW
+BEGIN
+
+IF (NEW.status = TRUE)
+THEN
+
+UPDATE Products
+INNER JOIN orderDetails
+ON Products.PK_productName = orderDetails.FK_productName
+SET Products.stock = Products.stock = orderDetails.quantity
+WHERE orderDetails.FK_orderID = NEW.PK_order;
+
+END IF;
+
+END $$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE FUNCTION PK_productName_price (PK_productName_param INT)
+RETURNS INTEGER
+READS SQL DATA
+BEGIN
+
+DECLARE prices DECIMAL(10,2);
+
+SELECT p.price INTO prices FROM products p WHERE p.PK_productName = PK_productName_param;
+
+RETURN prices;
+END $$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE FUNCTION PK_productName_price_subtotal (PK_orderDetails INT)
+RETURNS INTEGER
+READS SQL DATA
+BEGIN
+
+DECLARE subtotal DECIMAL(10,2);
+
+SELECT p.quantity * (SELECT a.price FROM products a WHERE a.PK_productName = p.FK_ProductName) INTO subtotal FROM PK_orderDetails p WHERE p.PK_orderDetails = PK_orderDetail;
+
+RETURN subtotal;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE FUNCTION ORDER_TOTAL_AMOUNT (PK_order INT)
+RETURNS INTEGER
+READS SQL DATA
+BEGIN
+
+DECLARE totalAmount Decimal(10,2);
+
+SELECT SUM(p.price * od.quantity)
+INTO totalAmount
+FROM orders o
+INNER JOIN orderDetails od
+ON o.PK_order = od.FK_orderID
+INNER JOIN products p
+ON p.PK_products = od.FK_products
+WHERE o.PK_order = PK_order;
+
+RETURN totalAmount;
+END $$
+
+DELIMITER ;
