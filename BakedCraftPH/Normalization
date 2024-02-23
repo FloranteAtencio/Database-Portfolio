@@ -26,10 +26,11 @@ R:{
 27	28	29	30	31	32	33	34	35	36	37	38	39	40	41	42	43	44	45	46 		
 }
 
-FD {1 -> 2 to 6 Products, 7->1, 8 to 11 ProductMade, 12 ->1, 13, 14 Orders, 15 ->12, 18, 1, 16, 17 orderDetails, 18 ->22, 19, 20, 21 paymentMethod, 22->23 to 27 shareHolder, 28 ->22, 29, 30, 31 share  32 -> 33,34,35 materialStats   36,-> 28, 32, 37 to 42 MaterialAdded
+FD {1 -> 2 to 6 Products, 7->1, 8 to 11 ProductMade, 12 ->1, 13, 14 Orders, 15 ->12, 18, 1, 16, 17 orderDetails, 18 ->22, 19, 20, 21 paymentMethod, 22->23 to 27 shareHolder, 
+28 ->22, 29, 30, 31 share  32 -> 33,34,35 materialStats   36,-> 28, 32, 37 to 42 MaterialAdded
 42 -> 36, 43 expensesLog, 44 -> 28, 45 to 48 Neccesity, 1, 32 -> 1, 32 MaterialNeeded }
 
-
+FD :{ 22->23 to 27} shareHolder Form(BCNF) CK:{22}
 CREATE TABLE `ShareHolder` (
   `PK_shareholder` VARCHAR(10) PRIMARY KEY,
   `First` VARCHAR(50),
@@ -39,6 +40,7 @@ CREATE TABLE `ShareHolder` (
   `email` VARCHAR(40)
 );
 
+FD :{28 ->22, 29, 30, 31 } share Form(BCNF) CK:{28}
 CREATE TABLE `Share` (
   `PK_share` VARCHAR(10) PRIMARY KEY,
   `Shared` DECIMAL(10,2),
@@ -48,6 +50,7 @@ CREATE TABLE `Share` (
   FOREIGN KEY (`FK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
 );
 
+FD :{32 -> 33,34,35 } MaterialStats Form(BCNF) CK:{32}
 CREATE TABLE `MaterialStats` (
   `Stock` INT,
   `Description` Text,
@@ -55,6 +58,7 @@ CREATE TABLE `MaterialStats` (
   `PK_material` VARCHAR(10) PRIMARY KEY
 );
 
+FD :{ 36,-> 28, 32, 37 to 42 } MaterialsAdded Form(BCNF) CK:{36}
 CREATE TABLE `MaterialsAdded` (
   `PK_materialAdded` VARCHAR(10) PRIMARY KEY,
   `FK_material` VARCHAR(10) ,
@@ -68,6 +72,7 @@ CREATE TABLE `MaterialsAdded` (
   FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
 );
 
+FD :{ 344 -> 28, 45 to 48 }  Neccesity Form(BCNF) CK:{44}
 CREATE TABLE `Neccesity` (
   `PK_necessity` VARCHAR(10) PRIMARY KEY,
   `necessity` VARCHAR(50),
@@ -78,6 +83,7 @@ CREATE TABLE `Neccesity` (
   FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`)
 );
 
+FD :{ 42 -> 36, 43 } expensesLog Form(BCNF) CK:{42}
 CREATE TABLE `ExpensesLog` (
   `PK_expenses` VARCHAR(10) PRIMARY KEY,
   `date` DATE,
@@ -86,6 +92,7 @@ CREATE TABLE `ExpensesLog` (
   FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `MaterialsAdded`(`PK_materialAdded`)
 );
 
+FD :{ 18 ->22, 19, 20, 21 } paymentMethod Form(BCNF) CK:{18}
 CREATE TABLE `PaymentMethod` (
   `PK_paymentMethod` VARCHAR(10) PRIMARY KEY,
   `paymentMethod` VARCHAR(50),
@@ -95,6 +102,7 @@ CREATE TABLE `PaymentMethod` (
   FOREIGN KEY (`PK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
 );
 
+FD :{ 1 -> 2 to 62 }  Products Form(BCNF) CK:{1}
 CREATE TABLE `Products` (
   `PK_productName` VARCHAR(10) PRIMARY KEY,
   `desription` TEXT,
@@ -104,6 +112,7 @@ CREATE TABLE `Products` (
   `status` BOOL
 );
 
+FD :{  7->1, 8 to 11  } ProductMade Form(BCNF) CK:{7}
 CREATE TABLE `ProductMade` (
   `PK_productsLog` VARCHAR(10) PRIMARY KEY,
   `FK_productName` VARCHAR(50),
@@ -114,6 +123,7 @@ CREATE TABLE `ProductMade` (
   FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`)
 );
 
+FD :{ 1, 32 -> 1, 32 } MaterialNeeded Form(2 NF) CK:{1,32}
 CREATE TABLE `MaterialNeeded` (
   `FK_productName` VARCHAR(10) ,
   `FK_material` VARCHAR(10) ,
@@ -122,6 +132,7 @@ CREATE TABLE `MaterialNeeded` (
   FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
 );
 
+FD :{  12 ->1, 13, 14  }  Orders Form(BCNF) CK:{12}
 CREATE TABLE `Orders` (
   `PK_Order` VARCHAR(10) PRIMARY KEY,
   `orderDate` DATETIME,
@@ -130,6 +141,7 @@ CREATE TABLE `Orders` (
   FOREIGN KEY (`FK_paymentMethod`) REFERENCES `PaymentMethod`(`PK_paymentMethod`)
 );
 
+FD :{  15 ->12, 18, 1, 16, 17 } orderDetails Form(BCNF) CK:{15}
 CREATE TABLE `orderDetails` (
   `PK_orderDetails` VARCHAR(10) PRIMARY KEY,
   `FK_orderID` VARCHAR(10),
