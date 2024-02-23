@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS RetailInventory
+
+CREATE TABLE RetailInventory
+
 
 CREATE TABLE `ShopperShip` (
   `PK_shopperShip` VARCHAR(10) PRIMARY KEY,
