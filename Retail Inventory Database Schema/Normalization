@@ -28,9 +28,9 @@ R:{
 27	28	29	30	31	32	33	34	35	36	37	38	39	40	41	42	43	44	45	46 		
 }
 
-FD {1 -> 2 to 6 Products, 7->1, 8 to 11 ProductMade, 12 ->1, 13, 14 Orders, 15 ->12, 18, 1, 16, 17 orderDetails, 18 ->22, 19, 20, 21 paymentMethod, 22->23 to 27 shareHolder, 
-28 ->22, 29, 30, 31 share  32 -> 33,34,35 materialStats   36,-> 28, 32, 37 to 42 MaterialAdded
-42 -> 36, 43 expensesLog, 44 -> 28, 45 to 48 Neccesity, 1, 32 -> 1, 32 MaterialNeeded }
+FD {1 -> 2 to 6 storage, 7->1, 8 to 11 Product, 12 ->1, 13, 14 supplier, 15 ->12, 18, 1, 16, 17 orderDetails, 18 ->22, 19, 20, 21 paymentMethod, 22->23 to 27 shareHolder, 
+28 ->22, 29, 30, 31 transaction  32 -> 33,34,35 category   36,-> 28, 32, 37 to 42 orders
+42 -> 36, 43 paymentMethod, 44 -> 28, 45 to 48 orderDetails, 1, 32 -> 1, 32 Shipper shopper  shoppership }
 
 FD :{ 22->23 to 27} shareHolder Form(BCNF) CK:{22}
 CREATE TABLE `ShareHolder` (
