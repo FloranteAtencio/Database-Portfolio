@@ -32,124 +32,91 @@ FD {1 -> 2 to 6 storage, 7->1, 8 to 11 Product, 12 ->1, 13, 14 supplier, 15 ->12
 28 ->22, 29, 30, 31 transaction  32 -> 33,34,35 category   36,-> 28, 32, 37 to 42 orders
 42 -> 36, 43 paymentMethod, 44 -> 28, 45 to 48 orderDetails, 1, 32 -> 1, 32 Shipper shopper  shoppership }
 
-FD :{ 22->23 to 27} shareHolder Form(BCNF) CK:{22}
-CREATE TABLE `ShareHolder` (
-  `PK_shareholder` VARCHAR(10) PRIMARY KEY,
-  `First` VARCHAR(50),
-  `Middle` VARCHAR(50),
-  `Last` VARCHAR(50),
-  `contact` VARCHAR(13),
-  `email` VARCHAR(40)
+CREATE TABLE `ShopperShip` (
+  `PK_shopperShip` VARCHAR(10) PRIMARY KEY,
+  `fullAddress` TEXT,
+  `FK_productName` VARCHAR(10) ,
+  `quantity` BOOL
 );
 
-FD :{28 ->22, 29, 30, 31 } share Form(BCNF) CK:{28}
-CREATE TABLE `Share` (
-  `PK_share` VARCHAR(10) PRIMARY KEY,
-  `Shared` DECIMAL(10,2),
-  `FK_shareholder` VARCHAR(10),
-  `Date` DATETIME,
-  `description` TEXT,
-  FOREIGN KEY (`FK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
+CREATE TABLE `shopper` (
+  `PK_shopper` VARCHAR(10) PRIMARY KEY,
+  `firstName` VARCHAR(25),
+  `lastName` VARCHAR(50),
+  `contactNumber` VARCHAR(15),
+  `emailAddress` TEXT
 );
 
-FD :{32 -> 33,34,35 } MaterialStats Form(BCNF) CK:{32}
-CREATE TABLE `MaterialStats` (
-  `Stock` INT,
-  `Description` Text,
-  `Status` VARCHAR(10),
-  `PK_material` VARCHAR(10) PRIMARY KEY
+CREATE TABLE `Shippers` (
+  `PK_shippers` VARCHAR(10) PRIMARY KEY,
+  `orderDate` DATETIME,
+  `status` Bool,
+  `FK_paymentMethod` VARCHAR(10)
 );
 
-FD :{ 36,-> 28, 32, 37 to 42 } MaterialsAdded Form(BCNF) CK:{36}
-CREATE TABLE `MaterialsAdded` (
-  `PK_materialAdded` VARCHAR(10) PRIMARY KEY,
-  `FK_material` VARCHAR(10) ,
-  `description` TEXT,
-  `quantity` INT,
-  `price` DECIMAL(10,2),
-  `unit` VARCHAR(50),
-  `date` DATE,
-  `FK_share` VARCHAR(10),
-  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`),
-  FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
-);
-
-FD :{ 344 -> 28, 45 to 48 }  Neccesity Form(BCNF) CK:{44}
-CREATE TABLE `Neccesity` (
-  `PK_necessity` VARCHAR(10) PRIMARY KEY,
-  `necessity` VARCHAR(50),
-  `price` DECIMAL(10,2),
-  `description` TEXT,
-  `date` DATE,
-  `FK_share` VARCHAR(10),
-  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`)
-);
-
-FD :{ 42 -> 36, 43 } expensesLog Form(BCNF) CK:{42}
-CREATE TABLE `ExpensesLog` (
-  `PK_expenses` VARCHAR(10) PRIMARY KEY,
-  `date` DATE,
-  `FK_expenses_Neccesity_material` VARCHAR(10),
-  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `Neccesity`(`PK_necessity`),
-  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `MaterialsAdded`(`PK_materialAdded`)
-);
-
-FD :{ 18 ->22, 19, 20, 21 } paymentMethod Form(BCNF) CK:{18}
 CREATE TABLE `PaymentMethod` (
   `PK_paymentMethod` VARCHAR(10) PRIMARY KEY,
   `paymentMethod` VARCHAR(50),
   `description` TEXT,
-  `discountRate` Decimal(2,2),
-  `PK_shareholder` VARCHAR(10),
-  FOREIGN KEY (`PK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
+  `discountRate` Decimal(2,2)
 );
 
-FD :{ 1 -> 2 to 62 }  Products Form(BCNF) CK:{1}
-CREATE TABLE `Products` (
-  `PK_productName` VARCHAR(10) PRIMARY KEY,
-  `desription` TEXT,
-  `price` DECIMAL(10,2),
-  `stock` INT,
-  `unit` VARCHAR(25),
-  `status` BOOL
-);
-
-FD :{  7->1, 8 to 11  } ProductMade Form(BCNF) CK:{7}
-CREATE TABLE `ProductMade` (
-  `PK_productsLog` VARCHAR(10) PRIMARY KEY,
-  `FK_productName` VARCHAR(50),
-  `Date` DATE,
-  `quantitty` INT,
-  `description` TEXT,
-  `status` BOOL,
-  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`)
-);
-
-FD :{ 1, 32 -> 1, 32 } MaterialNeeded Form(2 NF) CK:{1,32}
-CREATE TABLE `MaterialNeeded` (
-  `FK_productName` VARCHAR(10) ,
-  `FK_material` VARCHAR(10) ,
-  FOREIGN KEY (`FK_productName`) REFERENCES `ProductMade`(`FK_productName`),
-  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`),
-  FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
-);
-
-FD :{  12 ->1, 13, 14  }  Orders Form(BCNF) CK:{12}
 CREATE TABLE `Orders` (
   `PK_Order` VARCHAR(10) PRIMARY KEY,
   `orderDate` DATETIME,
   `status` Bool,
   `FK_paymentMethod` VARCHAR(10),
-  FOREIGN KEY (`FK_paymentMethod`) REFERENCES `PaymentMethod`(`PK_paymentMethod`)
+  `FK_shopper` VARCHAR(10)
 );
 
-FD :{  15 ->12, 18, 1, 16, 17 } orderDetails Form(BCNF) CK:{15}
+CREATE TABLE `Category` (
+  `PK_category` INT PK,
+  `categoryName` Varchar(50)
+);
+
+CREATE TABLE `Transaction` (
+  `PK_transaction` INT PK,
+  `FK_product` INT FK,
+  `transactionType` Varchar(50),
+  `transactionDate` datetime,
+  `quantity` INT,
+  `totalAmount` decimal(10,2)
+);
+
+CREATE TABLE `Storage` (
+  `PK_storage` INT PK,
+  `storageType` INT FK,
+  `location` varchar(25)
+);
+
+CREATE TABLE `Supplier` (
+  `PK_supplier` INT PK,
+  `supplierName` Varchar(50),
+  `contactPerson` Varchar(50),
+  `contactNumber` Varchar(14),
+  `e-Mail` Varchar(50),
+  `state` Varchar(50),
+  `postalcode` INT,
+  `city` varchar(50),
+  `fax` varchar(15),
+  `Address` varchar(50),
+  `Notes` text
+);
+
+CREATE TABLE `Product` (
+  `PK_product` INT PK,
+  `productName` Varchar(50),
+  `FK_storage` INT FK,
+  `FK_category` INT FK,
+  `FK_supplier` INT FK,
+  `unitPrice` Decimal (10.2),
+  `stockQuantity` INT
+);
+
 CREATE TABLE `orderDetails` (
   `PK_orderDetails` VARCHAR(10) PRIMARY KEY,
   `FK_orderID` VARCHAR(10),
-  `FK_productName` VARCHAR(10) ,
+  `FK_product` INT FK,
   `quantity` INT,
-  `status` BOOL,
-  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`),
-  FOREIGN KEY (`FK_orderID`) REFERENCES `Orders`(`PK_Order`)
+  `FK_shippers` VARCHAR(10)
 );
