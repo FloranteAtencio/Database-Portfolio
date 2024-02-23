@@ -29,3 +29,113 @@ R:{
 FD {1 -> 2 to 6 Products, 7->1, 8 to 11 ProductMade, 12 ->1, 13, 14 Orders, 15 ->12, 18, 1, 16, 17 orderDetails, 18 ->22, 19, 20, 21 paymentMethod, 22->23 to 27 shareHolder, 28 ->22, 29, 30, 31 share  32 -> 33,34,35 materialStats   36,-> 28, 32, 37 to 42 MaterialAdded
 42 -> 36, 43 expensesLog, 44 -> 28, 45 to 48 Neccesity, 1, 32 -> 1, 32 MaterialNeeded }
 
+
+CREATE TABLE `ShareHolder` (
+  `PK_shareholder` VARCHAR(10) PRIMARY KEY,
+  `First` VARCHAR(50),
+  `Middle` VARCHAR(50),
+  `Last` VARCHAR(50),
+  `contact` VARCHAR(13),
+  `email` VARCHAR(40)
+);
+
+CREATE TABLE `Share` (
+  `PK_share` VARCHAR(10) PRIMARY KEY,
+  `Shared` DECIMAL(10,2),
+  `FK_shareholder` VARCHAR(10),
+  `Date` DATETIME,
+  `description` TEXT,
+  FOREIGN KEY (`FK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
+);
+
+CREATE TABLE `MaterialStats` (
+  `Stock` INT,
+  `Description` Text,
+  `Status` VARCHAR(10),
+  `PK_material` VARCHAR(10) PRIMARY KEY
+);
+
+CREATE TABLE `MaterialsAdded` (
+  `PK_materialAdded` VARCHAR(10) PRIMARY KEY,
+  `FK_material` VARCHAR(10) ,
+  `description` TEXT,
+  `quantity` INT,
+  `price` DECIMAL(10,2),
+  `unit` VARCHAR(50),
+  `date` DATE,
+  `FK_share` VARCHAR(10),
+  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`),
+  FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
+);
+
+CREATE TABLE `Neccesity` (
+  `PK_necessity` VARCHAR(10) PRIMARY KEY,
+  `necessity` VARCHAR(50),
+  `price` DECIMAL(10,2),
+  `description` TEXT,
+  `date` DATE,
+  `FK_share` VARCHAR(10),
+  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`)
+);
+
+CREATE TABLE `ExpensesLog` (
+  `PK_expenses` VARCHAR(10) PRIMARY KEY,
+  `date` DATE,
+  `FK_expenses_Neccesity_material` VARCHAR(10),
+  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `Neccesity`(`PK_necessity`),
+  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `MaterialsAdded`(`PK_materialAdded`)
+);
+
+CREATE TABLE `PaymentMethod` (
+  `PK_paymentMethod` VARCHAR(10) PRIMARY KEY,
+  `paymentMethod` VARCHAR(50),
+  `description` TEXT,
+  `discountRate` Decimal(2,2),
+  `PK_shareholder` VARCHAR(10),
+  FOREIGN KEY (`PK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
+);
+
+CREATE TABLE `Products` (
+  `PK_productName` VARCHAR(10) PRIMARY KEY,
+  `desription` TEXT,
+  `price` DECIMAL(10,2),
+  `stock` INT,
+  `unit` VARCHAR(25),
+  `status` BOOL
+);
+
+CREATE TABLE `ProductMade` (
+  `PK_productsLog` VARCHAR(10) PRIMARY KEY,
+  `FK_productName` VARCHAR(50),
+  `Date` DATE,
+  `quantitty` INT,
+  `description` TEXT,
+  `status` BOOL,
+  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`)
+);
+
+CREATE TABLE `MaterialNeeded` (
+  `FK_productName` VARCHAR(10) ,
+  `FK_material` VARCHAR(10) ,
+  FOREIGN KEY (`FK_productName`) REFERENCES `ProductMade`(`FK_productName`),
+  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`),
+  FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
+);
+
+CREATE TABLE `Orders` (
+  `PK_Order` VARCHAR(10) PRIMARY KEY,
+  `orderDate` DATETIME,
+  `status` Bool,
+  `FK_paymentMethod` VARCHAR(10),
+  FOREIGN KEY (`FK_paymentMethod`) REFERENCES `PaymentMethod`(`PK_paymentMethod`)
+);
+
+CREATE TABLE `orderDetails` (
+  `PK_orderDetails` VARCHAR(10) PRIMARY KEY,
+  `FK_orderID` VARCHAR(10),
+  `FK_productName` VARCHAR(10) ,
+  `quantity` INT,
+  `status` BOOL,
+  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`),
+  FOREIGN KEY (`FK_orderID`) REFERENCES `Orders`(`PK_Order`)
+);
