@@ -23,9 +23,9 @@ Lossless Join Decomposition
 Database Relations
 R:{
 	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26
-27	28	29	30	31	32	33	34	35	36	37	38	39	40	41	42	43	44	45	46	47	48		
+27	28	29	30	31	32	33	34	35	36	37	38	39	40	41	42	43	44	45	46 		
 }
 
-FD {1 -> 2 to 8 farmeringo,    9-> 10 to 15 farmertech,  16 ->1, 17, 18 landtiill,  19 ->1, 20, 21 contact ,  22 -> 23, 24 livestockinfo   25->26, 22, 1, 9 live stock     27 -> 28, 29, 30 brandseed  31 -> 32 33 27, 1, 9 season crop   34,-> 31, 35, 36, 37 season
-38 -> 39 to 42 Companyprovider, 43 -> 1, 38, 44, 45 subsidize, 46 -> 47,48 incidentType , 49 -> 46, 1, 9 50 to 52 livestockincident, 53 -> 46, 1, 9, 54 to 56 crop incident
-}
+FD {1 -> 2 to 6 Products, 7->1, 8 to 11 ProductMade, 12 ->1, 13, 14 Orders, 15 ->12, 18, 1, 16, 17 orderDetails, 18 ->22, 19, 20, 21 paymentMethod, 22->23 to 27 shareHolder, 28 ->22, 29, 30, 31 share  32 -> 33,34,35 materialStats   36,-> 28, 32, 37 to 42 MaterialAdded
+42 -> 36, 43 expensesLog, 44 -> 28, 45 to 48 Neccesity, 1, 32 -> 1, 32 MaterialNeeded }
+
