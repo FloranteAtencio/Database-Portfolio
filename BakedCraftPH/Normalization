@@ -7,18 +7,24 @@ BakedCraftPH Database
 •	No duplicate rows.
 2ND Normal Form
 •	It must be 1st Normal Form.
-•	No Patial dependency in the relation (Partial dependency occurs when the left-hand side of a candidate key points non-prime attributes).
+•	No Patial dependency in the relation 
+	(Partial dependency occurs when the left-hand side of a candidate key points non-prime attributes).
 3rd Normal Form
 •	It must be 2nd Normal Form.																         
-•	No transitive dependency for non-prime attributes (To be non-transitive and 3NF at least one of these must be true: Either the left-hand side of functional dependency is super key or the right-hand side points to a prime attribute).
+•	No transitive dependency for non-prime attributes 
+	(To be non-transitive and 3NF at least one of these must be true: 
+	Either the left-hand side of functional dependency is super key or the right-hand side points to a prime attribute).
 BCNF
 •	if it is 3NF. 
 •	For each functional dependency there must be a super key.
 Preserving Dependency Decomposition
-•	is another property of decomposed relational database schema D in which each functional dependency X -> Y specified in F either appeared directly in one of the relation schemas Ri in the decomposed D or could be inferred from the dependencies that appear in some Ri.
-
+•	is another property of decomposed relational database schema D in which each functional dependency X -> Y specified 
+	in F either appeared directly in one of the relation schemas Ri in the decomposed D or could be inferred from the 
+	dependencies that appear in some Ri.
 Lossless Join Decomposition
-•	Lossless join decomposition is a decomposition of a relation R into relations R1, R2 such that if we perform a natural join of relation R1 and R2, it will return the original relation R. This is effective in removing redundancies from databases while preserving the original data.
+•	Lossless join decomposition is a decomposition of a relation R into relations R1, R2 
+	such that if we perform a natural join of relation R1 and R2, it will return the original relation R. 
+	This is effective in removing redundancies from databases while preserving the original data.
 
 Database Relations
 R:{
