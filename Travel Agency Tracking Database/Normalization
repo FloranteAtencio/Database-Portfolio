@@ -110,7 +110,7 @@ Flight Details
 R:{
 38	39	40	41	42	43	44	45	46	47	48
 }
-FD:{ 38->32, 39 to 48,  40 -> 41 to 43,  44 -> 45 to 48 } Highest Normal Form{2NF} CK:{38}
+FD:{ 38->32, 39 to 48 } Highest Normal Form{bcnf} CK:{38}
 CREATE TABLE `Fliigh Details` (
   `FlightID` INT PK,
   `Flight No.` NVARCHAR(10),
