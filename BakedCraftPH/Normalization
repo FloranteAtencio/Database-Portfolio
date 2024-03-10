@@ -129,7 +129,7 @@ CREATE TABLE `ProductMade` (
   FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`)
 );
 
-FD :{ 1, 32 -> 1, 32 } MaterialNeeded Form(2 NF) CK:{1,32}
+FD :{ 1, 32 -> 1, 32 } MaterialNeeded Form(BCNF) CK:{1,32}
 CREATE TABLE `MaterialNeeded` (
   `FK_productName` VARCHAR(10) ,
   `FK_material` VARCHAR(10) ,
