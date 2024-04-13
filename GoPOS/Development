@@ -1,1 +1,557 @@
 
+DROP DATABASE IF EXISTS POSSYSTEM;
+
+CREATE DATABASE POSSYSTEM;
+
+USE POSSYSTEM;
+
+DROP TABLE IF EXISTS Inventory;
+CREATE TABLE `Inventory` (
+`PK_Invetory` BIGINT NOT NULL AUTO_INCREMENT,
+`barCode` INT,
+`item` VARCHAR(126),
+`description` Varchar(126),
+`variant` Varchar(126),
+`price` FLOAT(10,2),
+CONSTRAINT PK_INVENTORY PRIMARY KEY (PK_Invetory),
+CONSTRAINT UC_BARCODE UNIQUE (barCode)
+);
+
+DROP TABLE IF EXISTS `InvoiceConfirmation`;
+CREATE TABLE `InvoiceConfirmation` (
+  `PK_Invoice` Varchar(126),
+  `dateTime` Date,
+  `paymentMethod` INT,
+  `status` INT,
+  `totalPurchase` Float(10,2),
+CONSTRAINT PK_INVOICE PRIMARY KEY (PK_Invoice)
+);
+
+DROP TABLE IF EXISTS `LoginAccess`;
+CREATE TABLE `LoginAccess` (
+  `userName` Varchar(126),
+  `passWord` Varchar(126),
+  `accessControl` TinyInt,
+CONSTRAINT USERNAME PRIMARY KEY (userName)
+);
+
+DROP TABLE IF EXISTS `OrderDetails`;
+CREATE TABLE `OrderDetails` (
+  `PK_orderDetails` BIGINT NOT NULL AUTO_INCREMENT,
+  `userName` Varchar(126),
+  `barCode` INT,
+  `totalQuantity` INT,
+  `totalPrice` INT,
+  `item` Varchar(126),
+  `PK_Invoice` Varchar(126),
+CONSTRAINT PK_ORDERDETAILS PRIMARY KEY(PK_orderDetails),
+CONSTRAINT FK_USERNAME FOREIGN KEY (userName) REFERENCES LoginAccess(userName),
+CONSTRAINT FK_BARCODE FOREIGN KEY (barCode) REFERENCES Inventory(barCode),
+CONSTRAINT FK_INVOICE FOREIGN KEY (PK_Invoice) REFERENCES InvoiceConfirmation(PK_Invoice)
+);
+
+DROP TABLE IF EXISTS `LoginLog`;
+CREATE TABLE `LoginLog` (
+  `PK_LogInLog` BIGINT AUTO_INCREMENT,
+  `timeLogin` DATETIME,
+  `userName` Varchar(126),
+CONSTRAINT PK_LOGINLOG PRIMARY KEY (`PK_LogInLog`),
+CONSTRAINT FK_USERNAME FOREIGN KEY (`userName`) REFERENCES LoginAccess(`userName`)
+);
+
+DROP TABLE IF EXISTS `EmployeeInfo`;
+CREATE TABLE `EmployeeInfo` (
+  `PK_Employeeinfo` INT AUTO_INCREMENT,
+  `name` Varchar(126),
+  `designation` Varchar(126),
+  `manager` Varchar(126),
+  `userName` Varchar(126),
+CONSTRAINT PK_EMPLOYEEINFO PRIMARY KEY(PK_Employeeinfo),
+CONSTRAINT FK_USERNAMEA FOREIGN KEY (userName) REFERENCES LoginAccess(userName)
+);
+
+DROP TABLE IF EXISTS `PaymentMethod`;
+CREATE TABLE `PaymentMethod` (
+  `PK_PaymentMethod` INT AUTO_INCREMENT,
+  `Description` Varchar(125),
+  `PaymentMethod` Varchar(125),
+CONSTRAINT PK_PAYMENTMETHOD PRIMARY KEY (`PK_PaymentMethod`)
+);
+
+DROP TABLE IF EXISTS `Discount`;
+CREATE TABLE `Discount` (
+  `PK_Discount` INT AUTO_INCREMENT,
+  `Discount` Varchar(120),
+  `Rate` INT,
+CONSTRAINT PK_DISCOUNT PRIMARY KEY (`PK_Discount`)
+);
+
+DROP TABLE IF EXISTS `SupplierName`;
+CREATE TABLE `Suppliername` (
+  `PK_SupplierName` INT AUTO_INCREMENT,
+  `Name` Varchar(50),
+  `ContactPerson` Varchar(50),
+  `Phone` Varchar(14),
+  `Email` Varchar(50),
+CONSTRAINT PK_SUPPLIERNAME PRIMARY KEY (`PK_SupplierName`)
+);
+
+DROP TABLE IF EXISTS `Supplier`;
+CREATE TABLE `Supplier` (
+  `PK_Supplier` INT  AUTO_INCREMENT,
+  `barcode` INT,
+  `dateDelivered` DateTime,
+  `Status` INT,
+  `PK_SupplierName` INT,
+  `total` INT,
+  `unit` Varchar(25),
+  `price` float(10,2),
+CONSTRAINT PK_SUPPLIER PRIMARY KEY (PK_Supplier),
+CONSTRAINT BARCODE FOREIGN KEY (`barcode`) REFERENCES Inventory(`barcode`),
+CONSTRAINT BARCODE FOREIGN KEY (`PK_SupplierName`) REFERENCES SupplierName( `PK_SupplierName`)
+
+);
+
+DROP TABLE IF EXISTS `InventoryQuantity`;
+CREATE TABLE `InventoryQuantity` (
+  `BarCode` INT,
+  `Quantity` INT,
+  `StatAlert` Varchar(4),
+CONSTRAINT BARCODE_UC FOREIGN KEY (barCode) REFERENCES `Inventory`(barCode)
+);
+
+DROP TABLE IF EXISTS `TimeInAndOut`;
+CREATE TABLE `TimeInAndOut` (
+  `PK_TimeInAndOut` INT AUTO_INCREMENT,
+  `INandOut` Time,
+  `Today` Date,
+  `PK_Employeeinfo` BIGINT,
+CONSTRAINT PK_TIMEINANDOUT PRIMARY KEY (`PK_TimeInAndOut`),
+CONSTRAINT PK_EMPLO FOREIGN KEY (PK_Employeeinfo) REFERENCES `Employeeinfo`(PK_Employeeinfo)
+);
+
+DROP TABLE IF EXISTS `EmployeeWage`;
+CREATE TABLE `EmployeeWage` (
+  `PK_EmployeeWage` INT AUTO_INCREMENT PRIMARY KEY,
+  `Designation` Varchar(126),
+  `SalaryPerHour` Float(10,2)
+);
+
+POSSyste Trigger 
+
+/* Update Inventory Quantity */
+DROP TRIGGER IF EXISTS Inventory_Update ;
+DELIMITER $$
+CREATE TRIGGER Inventory_Update
+AFTER INSERT ON OrderDetails
+FOR EACH ROW
+BEGIN
+
+UPDATE InventoryQuantity I
+SET I.quantity = I.quantity - New.TotalQuantity
+Where I.barCode = New.barCode;
+
+END $$
+DELIMITER ;
+POSSYSTEM Parametarize Update edition
+
+DROP PROCEDURE IF EXISTS Inventory_UpdateItem;
+DELIMITER //
+
+CREATE PROCEDURE Inventory_UpdateItem
+(
+
+IN param_BarCode INT,
+IN param_Item VARCHAR(126),
+IN param_Quantity INT,
+IN param_Price FLOAT
+
+)
+
+BEGIN
+
+UPDATE possystem.Inventory SET item = param_Item, quantity = param_quantity, price = param_price WHERE barcode = param_barcode;
+
+END //
+DELIMITER ; 
+
+
+
+DROP PROCEDURE IF EXISTS Employee_UpdateItem;
+DELIMITER //
+
+CREATE PROCEDURE Employee_UpdateItem
+(
+
+IN param_name VARCHAR(126),
+IN param_designation VARCHAR(126),
+IN param_manager VARCHAR(126),
+IN param_userName VARCHAR(126),
+IN param_password VARCHAR(126),
+IN param_accesscontrol INT
+
+)
+
+BEGIN
+
+UPDATE possystem.LoginAccess SET password = param_password, accesscontrol = param_accesscontrol values WHERE username = param_userName;
+
+UPDATE possystem.EmployeeInfo SET name = param_name,  designation = param_designation ,manager = param_manager WHERE username = param_userName;
+
+END //
+DELIMITER ; 
+
+
+
+DROP PROCEDURE IF EXISTS Supplier_UpdateItem;
+DELIMITER //
+
+CREATE PROCEDURE Supplier_AddItem
+(
+
+IN param_BarCode INT,
+IN param_DateDelivered DateTime,
+IN param_Status INT,
+IN param_PK_SupplierName INT,
+IN param_total INT,
+IN param_Unit Varchar(5),
+IN param_Unit_Price Float(10,2)
+)
+
+BEGIN
+
+UPDATE possytem.Supplier SET barcode = param_BarCode, dateDelivered= param_DateDelivered, status = param_Status, PK_SupplierName=param_PK_SupplierName, total = param_total, unit = param_Unit, param_Unit_Price=  param_Unit_Price WHERE barcode = param_BarCode;
+
+END //
+DELIMITER ;
+
+POSSystem Parametarize
+
+/*LoginUser------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS LOGINUSER;
+DELIMITER //
+
+CREATE PROCEDURE LOGINUSER 
+(
+IN param_Password VARCHAR(25), 
+IN param_username VARCHAR(25)
+)
+
+BEGIN
+
+SELECT a.username, a.accessControl   
+FROM possystem.loginaccess a 
+WHERE a.password = Param_Password AND a.userName = Param_username;
+
+END //
+DELIMITER ; 
+
+
+/*InventoryStock--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS Inventory_AddItem;
+DELIMITER //
+
+CREATE PROCEDURE Inventory_AddItem
+(
+
+IN param_BarCode INT,
+IN param_Item VARCHAR(126),
+IN param_Quantity INT,
+IN param_Price FLOAT
+
+)
+
+BEGIN
+
+INSERT INTO possystem.Inventory (barcode, item, quantity, price) Values (param_BarCode, param_Item, param_Quantity,param_Price);
+
+END //
+DELIMITER ; 
+
+
+/*Employee--------------------------------------------------*/
+DROP PROCEDURE IF EXISTS Employee_AddItem;
+DELIMITER //
+
+CREATE PROCEDURE Employee_AddItem
+(
+
+IN param_name VARCHAR(126),
+IN param_designation VARCHAR(126),
+IN param_manager VARCHAR(126),
+IN param_userName VARCHAR(126),
+IN param_password VARCHAR(126),
+IN param_accesscontrol INT
+
+)
+
+BEGIN
+
+INSERT INTO possystem.LoginAccess (username, password, accesscontrol) values (param_userName, param_password, param_accesscontrol);
+
+INSERT INTO possystem.EmployeeInfo (name, designation,manager,username) Values (param_name,param_designation,param_manager,param_userName);
+
+END //
+DELIMITER ; 
+
+/*LogInLog--------------------------------------------------*/
+DROP PROCEDURE IF EXISTS LogInLog_AddItem;
+DELIMITER //
+
+CREATE PROCEDURE LogInLog_AddItem
+(
+
+IN param_userName VARCHAR(126)
+
+)
+
+BEGIN
+
+INSERT INTO possystem.LoginLog (timeLogin, username) Values (NOW(),param_userName);
+
+END //
+DELIMITER ; 
+
+
+/*OrderDetails--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS OrderDetails_AddItem;
+DELIMITER //
+
+CREATE PROCEDURE OrderDetails_AddItem
+(
+
+IN param_totalQuantity INT,
+IN param_barCode INT,
+IN param_totalPrice INT,
+IN param_userName VARCHAR(126),
+IN param_item VARCHAR(126),
+IN param_PK_Invoice INT
+
+)
+
+BEGIN
+
+INSERT INTO possystem.OrderDetails 
+(username, barcode, totalQuantity,totalPrice,item,PK_Invoice) 
+Values 
+(param_userName, param_barCode,param_totalQuantit,param_barCode,param_item,param_PK_Invoice);
+
+END //
+DELIMITER ; 
+
+
+/*SupplierInventoryStock--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS Supplier_Inventory_AddItem;
+DELIMITER //
+
+CREATE PROCEDURE Supplier_Inventory_AddItem
+(
+
+IN param_BarCode INT,
+IN param_Item VARCHAR(126),
+IN param_Quantity INT,
+IN param_Price FLOAT,
+IN param_DateDelivered DateTime,
+IN param_Status INT,
+IN param_PK_SupplierName INT,
+IN param_total INT,
+IN param_Unit Varchar(5),
+IN param_Unit_Price Float(10,2)
+)
+
+BEGIN
+
+INSERT INTO possystem.Inventory (barcode, item, quantity, price) 
+Values (param_BarCode, param_Item, param_Quantity,param_Price);
+INSERT INTO possytem.Supplier (barcode,dateDelivered,status,PK_SupplierName, total, unit, price) 
+Values (param_BarCode, param_DateDelivered, param_Status, param_PK_SupplierName, param_total, param_Unit, param_Unit_Price);
+END //
+DELIMITER ; 
+
+/*SuppierName--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS SupplierName_AddItem;
+
+DELIMITER //
+CREATE PROCEDURE SupplierName_AddItem
+(
+IN param_name Varchar(50),
+IN param_contactPerson Varchar(50),
+IN param_phone Varchar(14),
+IN param_email varchar(50)
+)
+
+BEGIN
+
+INSERT INTO possystem.suppliername (name, contactPerson, phone, email) 
+Values (param_name, param_contactPerson, param_phone, param_email);
+
+END //
+DELIMITER ;
+
+/*Wage--------------------------------------------------*/
+DROP PROCEDURE IF EXISTS Wage;
+
+DELIMITER //
+CREATE PROCEDURE Wage
+(
+IN param_designation Varchar(126),
+IN param_salaryPerHour Float(10,2)
+)
+
+BEGIN
+
+INSERT INTO possystem.Wage (designation, SalaryPerHour) 
+Values (param_designation, param_salaryPerHour);
+
+END //
+DELIMITER ;
+
+
+/*TIMEINANDOUT--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS TimeInOut_Additem;
+
+DELIMITER //
+CREATE PROCEDURE TimeInOut_Additem
+(
+IN param_Employeeinfo BIGINT
+)
+
+BEGIN 
+
+INSERT INTO possystem.TimeInAndOut (Inandout, today, PK_Employeeinfo) Values (CURTIME(), CURDATE(), param_Employeeinfo);
+
+END //
+DELIMITER ;
+
+
+/*DISCOUNT--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS Discount_AddItem;
+
+DELIMITER //
+CREATE PROCEDURE Discount_AddItem
+(
+IN param_discount Varchar(50),
+IN param_rate INT
+)
+
+BEGIN
+
+INSERT INTO possystem.Discount (discount, rate)
+Values (param_discount, para_rate);
+
+END //
+DELIMITER ;
+
+
+/*PaymentMenthod--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS PaymentMethod_AddItem;
+
+DELIMITER //
+CREATE PROCEDURE PaymentMethod_AddItem
+(
+IN param_Description INT,
+IN param_method Varchar(50)
+)
+
+BEGIN
+
+INSERT INTO possystem.PaymentMethod_AddItem (description, paymentMethod)
+Values (param_Description,param_method);
+
+END //
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS SupplierName_UpdateItem;
+
+DELIMITER //
+CREATE PROCEDURE SupplierName_UpdateItem
+(
+IN param_PK_SupplierNamme INT,
+IN param_name Varchar(50),
+IN param_contactPerson Varchar(50),
+IN param_phone Varchar(14),
+IN param_email varchar(50)
+)
+
+BEGIN
+
+UPDATE possystem.suppliername 
+SET name = param_name, contactPerson =param_contactPerson,  phone= param_phone, email = param_email
+WHERE PK_SupplierName = param_PK_SupplierNamme;
+
+END //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS Wage_UpdateIte;
+
+DELIMITER //
+CREATE PROCEDURE Wage_UpdateItem
+(
+IN param_PK_Wage INT,
+IN param_designation Varchar(126),
+IN param_salaryPerHour Float(10,2)
+)
+
+BEGIN
+
+UPDATE possystem.Wage 
+SET designation =param_designation, SalaryPerHour = param_salaryPerHour
+WHERE PK_Wage = param_PK_Wage
+
+END //
+DELIMITER ;
+
+
+
+/*DISCOUNT--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS Discount_UpdateItem;
+
+DELIMITER //
+CREATE PROCEDURE Discount_UpdateItem
+(
+IN param_PK_discount INT,
+IN param_discount Varchar(50),
+IN param_rate INT
+)
+
+BEGIN
+
+UPDATE possystem.Discount 
+SET discount = param_discount, rate = param_rate
+WHERE PK_discount = param_PK_discount
+
+END //
+DELIMITER ;
+
+
+/*PaymentMenthod--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS PaymentMethod_AddItem;
+
+DELIMITER //
+CREATE PROCEDURE PaymentMethod_AddItem
+(
+IN param_Description INT,
+IN param_method Varchar(50)
+)
+
+BEGIN
+
+INSERT INTO possystem.PaymentMethod_AddItem (description, paymentMethod)
+Values (param_Description,param_method);
+
+END //
+DELIMITER ;
