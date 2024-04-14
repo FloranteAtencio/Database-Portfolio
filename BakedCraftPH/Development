@@ -82,7 +82,7 @@ CREATE TABLE `ProductMade` (
   `PK_productsLog` VARCHAR(10) PRIMARY KEY,
   `FK_productName` VARCHAR(50),
   `Date` DATE,
-  `quantitty` INT,
+  `quantity` INT,
   `description` TEXT,
   `status` BOOL,
   FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`)
