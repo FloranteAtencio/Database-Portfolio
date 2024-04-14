@@ -137,94 +137,6 @@ CREATE TABLE `EmployeeWage` (
   `SalaryPerHour` Float(10,2)
 );
 
-POSSyste Trigger 
-
-/* Update Inventory Quantity */
-DROP TRIGGER IF EXISTS Inventory_Update ;
-DELIMITER $$
-CREATE TRIGGER Inventory_Update
-AFTER INSERT ON OrderDetails
-FOR EACH ROW
-BEGIN
-
-UPDATE InventoryQuantity I
-SET I.quantity = I.quantity - New.TotalQuantity
-Where I.barCode = New.barCode;
-
-END $$
-DELIMITER ;
-POSSYSTEM Parametarize Update edition
-
-DROP PROCEDURE IF EXISTS Inventory_UpdateItem;
-DELIMITER //
-
-CREATE PROCEDURE Inventory_UpdateItem
-(
-
-IN param_BarCode INT,
-IN param_Item VARCHAR(126),
-IN param_Quantity INT,
-IN param_Price FLOAT
-
-)
-
-BEGIN
-
-UPDATE possystem.Inventory SET item = param_Item, quantity = param_quantity, price = param_price WHERE barcode = param_barcode;
-
-END //
-DELIMITER ; 
-
-
-
-DROP PROCEDURE IF EXISTS Employee_UpdateItem;
-DELIMITER //
-
-CREATE PROCEDURE Employee_UpdateItem
-(
-
-IN param_name VARCHAR(126),
-IN param_designation VARCHAR(126),
-IN param_manager VARCHAR(126),
-IN param_userName VARCHAR(126),
-IN param_password VARCHAR(126),
-IN param_accesscontrol INT
-
-)
-
-BEGIN
-
-UPDATE possystem.LoginAccess SET password = param_password, accesscontrol = param_accesscontrol values WHERE username = param_userName;
-
-UPDATE possystem.EmployeeInfo SET name = param_name,  designation = param_designation ,manager = param_manager WHERE username = param_userName;
-
-END //
-DELIMITER ; 
-
-
-
-DROP PROCEDURE IF EXISTS Supplier_UpdateItem;
-DELIMITER //
-
-CREATE PROCEDURE Supplier_AddItem
-(
-
-IN param_BarCode INT,
-IN param_DateDelivered DateTime,
-IN param_Status INT,
-IN param_PK_SupplierName INT,
-IN param_total INT,
-IN param_Unit Varchar(5),
-IN param_Unit_Price Float(10,2)
-)
-
-BEGIN
-
-UPDATE possytem.Supplier SET barcode = param_BarCode, dateDelivered= param_DateDelivered, status = param_Status, PK_SupplierName=param_PK_SupplierName, total = param_total, unit = param_Unit, param_Unit_Price=  param_Unit_Price WHERE barcode = param_BarCode;
-
-END //
-DELIMITER ;
-
 POSSystem Parametarize
 
 /*LoginUser------------------------------------------------*/
@@ -354,7 +266,9 @@ CREATE PROCEDURE Supplier_Inventory_AddItem
 IN param_BarCode INT,
 IN param_Item VARCHAR(126),
 IN param_Quantity INT,
+IN param_Description Varchar(126),
 IN param_Price FLOAT,
+IN param_Variant Varchar(120),
 IN param_DateDelivered DateTime,
 IN param_Status INT,
 IN param_PK_SupplierName INT,
@@ -365,8 +279,10 @@ IN param_Unit_Price Float(10,2)
 
 BEGIN
 
-INSERT INTO possystem.Inventory (barcode, item, quantity, price) 
+INSERT INTO possystem.Inventory (barcode, item, description, variant, price) 
 Values (param_BarCode, param_Item, param_Quantity,param_Price);
+INSERT INTO possystem.InventoryQuantity (barcode, Quantity,StatAlert)
+Values(param_BarCode,param_Quantity, "UP");
 INSERT INTO possytem.Supplier (barcode,dateDelivered,status,PK_SupplierName, total, unit, price) 
 Values (param_BarCode, param_DateDelivered, param_Status, param_PK_SupplierName, param_total, param_Unit, param_Unit_Price);
 END //
@@ -470,7 +386,88 @@ END //
 DELIMITER ;
 
 
+/*POSSYSTEM Parametarize Update edition*/
 
+DROP PROCEDURE IF EXISTS Inventory_UpdateItem;
+DELIMITER //
+
+CREATE PROCEDURE Inventory_UpdateItem
+(
+IN `param_barCode` INT,
+IN `param_item` VARCHAR(126),
+IN `param_description` Varchar(126),
+IN `param_variant` Varchar(126),
+IN `param_price` FLOAT,
+IN `param_quantity` INT,
+IN `param_statAlert Varchar(4)
+)
+
+BEGIN
+
+UPDATE possystem.Inventory 
+SET item = param_item, description = param_description, varian = param_variant, price = param_price 
+WHERE Barcode = param_Barcode;
+UPDATE possystem.InventoryQuantity
+SET Quantity = param_quantity, StatAlert = param_statAlert
+WHERE Barcode = param_Barcode;
+
+END //
+DELIMITER ; 
+
+/*1--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS Employee_UpdateItem;
+DELIMITER //
+
+CREATE PROCEDURE Employee_UpdateItem
+(
+
+IN param_name VARCHAR(126),
+IN param_designation VARCHAR(126),
+IN param_manager VARCHAR(126),
+IN param_userName VARCHAR(126),
+IN param_password VARCHAR(126),
+IN param_accesscontrol INT
+
+)
+
+BEGIN
+
+UPDATE possystem.LoginAccess 
+SET password = param_password, accesscontrol = param_accesscontrol 
+WHERE username = param_userName;
+
+UPDATE possystem.EmployeeInfo 
+SET name = param_name,  designation = param_designation ,manager = param_manager WHERE username = param_userName;
+
+END //
+DELIMITER ; 
+
+/*2--------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS Supplier_UpdateItem;
+DELIMITER //
+
+CREATE PROCEDURE Supplier_UpdateItem
+(
+
+IN param_BarCode INT,
+IN param_DateDelivered DateTime,
+IN param_Status INT,
+IN param_PK_SupplierName INT,
+IN param_total INT,
+IN param_Unit Varchar(5),
+IN param_Unit_Price Float(10,2)
+)
+
+BEGIN
+
+UPDATE possytem.Supplier SET barcode = param_BarCode, dateDelivered= param_DateDelivered, status = param_Status, PK_SupplierName=param_PK_SupplierName, total = param_total, unit = param_Unit, param_Unit_Price=  param_Unit_Price WHERE barcode = param_BarCode;
+
+END //
+DELIMITER ;
+
+/*3--------------------------------------------------*/
 
 DROP PROCEDURE IF EXISTS SupplierName_UpdateItem;
 
@@ -492,9 +489,9 @@ WHERE PK_SupplierName = param_PK_SupplierNamme;
 
 END //
 DELIMITER ;
+/*4--------------------------------------------------*/
 
-
-DROP PROCEDURE IF EXISTS Wage_UpdateIte;
+DROP PROCEDURE IF EXISTS Wage_UpdateItem;
 
 DELIMITER //
 CREATE PROCEDURE Wage_UpdateItem
@@ -508,14 +505,14 @@ BEGIN
 
 UPDATE possystem.Wage 
 SET designation =param_designation, SalaryPerHour = param_salaryPerHour
-WHERE PK_Wage = param_PK_Wage
+WHERE PK_Wage = param_PK_Wage;
 
 END //
 DELIMITER ;
 
 
 
-/*DISCOUNT--------------------------------------------------*/
+/*5--------------------------------------------------*/
 
 DROP PROCEDURE IF EXISTS Discount_UpdateItem;
 
@@ -531,27 +528,48 @@ BEGIN
 
 UPDATE possystem.Discount 
 SET discount = param_discount, rate = param_rate
-WHERE PK_discount = param_PK_discount
+WHERE PK_discount = param_PK_discount;
 
 END //
 DELIMITER ;
 
 
-/*PaymentMenthod--------------------------------------------------*/
+/*6--------------------------------------------------*/
 
-DROP PROCEDURE IF EXISTS PaymentMethod_AddItem;
+DROP PROCEDURE IF EXISTS PaymentMethod_UpdateItem;
 
 DELIMITER //
-CREATE PROCEDURE PaymentMethod_AddItem
+CREATE PROCEDURE PaymentMethod_UpdateItem
 (
+IN param_PK_PaymentMethod INT,
 IN param_Description INT,
 IN param_method Varchar(50)
 )
 
 BEGIN
 
-INSERT INTO possystem.PaymentMethod_AddItem (description, paymentMethod)
-Values (param_Description,param_method);
+UPDATE possystem.PaymentMethod 
+SET description =param_Description , paymentMethod =param_method 
+WHERE PK_paymentMethod = param_PK_PaymentMethod;
 
 END //
 DELIMITER ;
+
+
+POSSyste Trigger 
+
+/* Update Inventory Quantity */
+DROP TRIGGER IF EXISTS Inventory_Update ;
+DELIMITER $$
+CREATE TRIGGER Inventory_Update
+AFTER INSERT ON OrderDetails
+FOR EACH ROW
+BEGIN
+
+UPDATE InventoryQuantity I
+SET I.quantity = I.quantity - New.TotalQuantity
+Where I.barCode = New.barCode;
+
+END $$
+DELIMITER ;
+
