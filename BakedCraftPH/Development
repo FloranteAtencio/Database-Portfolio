@@ -5,7 +5,7 @@ CREATE DATABASE bakedcraftph;
 USE bakedcraftph;
 
 CREATE TABLE `ShareHolder` (
-  `PK_shareholder` VARCHAR(10) PRIMARY KEY,
+  `PK_shareholder` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `First` VARCHAR(50),
   `Middle` VARCHAR(50),
   `Last` VARCHAR(50),
@@ -13,64 +13,66 @@ CREATE TABLE `ShareHolder` (
   `email` VARCHAR(40)
 );
 
+CREATE INDEX idx_First_Last ON ShareHolder (First, Last)
+ALTER INDEX idx_First_Last ON ShareHolder DISABLE
+
 CREATE TABLE `Share` (
-  `PK_share` VARCHAR(10) PRIMARY KEY,
+  `PK_share` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `Shared` DECIMAL(10,2),
   `FK_shareholder` VARCHAR(10),
   `Date` DATETIME,
   `description` TEXT,
-  FOREIGN KEY (`FK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
+  FOREIGN KEY (`FK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `MaterialStats` (
-  `Stock` INT,
-  `Description` Text,
+  `Amount` INT,
   `Status` VARCHAR(10),
-  `PK_material` VARCHAR(10) PRIMARY KEY
+  `PK_materialStat` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `FK_material` INT,
+  FOREIGN KEY (`FK_material`) REFERENCES `Materials`(`PK_material`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
-CREATE TABLE `MaterialsAdded` (
-  `PK_materialAdded` VARCHAR(10) PRIMARY KEY,
-  `FK_material` VARCHAR(10) ,
+CREATE TABLE `Materials` (
+  `PK_material` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `description` TEXT,
-  `quantity` INT,
   `price` DECIMAL(10,2),
-  `unit` VARCHAR(50),
   `date` DATE,
+  `unit` Varchar(10),
   `FK_share` VARCHAR(10),
-  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`),
-  FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
+  `Amount` INT,
+  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `Neccesity` (
-  `PK_necessity` VARCHAR(10) PRIMARY KEY,
+  `PK_necessity` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `necessity` VARCHAR(50),
   `price` DECIMAL(10,2),
   `description` TEXT,
   `date` DATE,
   `FK_share` VARCHAR(10),
-  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`)
+  FOREIGN KEY (`FK_share`) REFERENCES `ShareHolder`(`PK_shareholder`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `ExpensesLog` (
-  `PK_expenses` VARCHAR(10) PRIMARY KEY,
+  `PK_expenses` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `date` DATE,
   `FK_expenses_Neccesity_material` VARCHAR(10),
-  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `Neccesity`(`PK_necessity`),
-  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `MaterialsAdded`(`PK_materialAdded`)
+  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `Neccesity`(`PK_necessity`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (`FK_expenses_Neccesity_material`) REFERENCES `MaterialsAdded`(`PK_materialAdded`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `PaymentMethod` (
-  `PK_paymentMethod` VARCHAR(10) PRIMARY KEY,
+  `PK_paymentMethod` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `paymentMethod` VARCHAR(50),
   `description` TEXT,
   `discountRate` Decimal(2,2),
   `PK_shareholder` VARCHAR(10),
-  FOREIGN KEY (`PK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`)
+  FOREIGN KEY (`PK_shareholder`) REFERENCES `ShareHolder`(`PK_shareholder`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `Products` (
-  `PK_productName` VARCHAR(10) PRIMARY KEY,
+  `PK_productName` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `desription` TEXT,
   `price` DECIMAL(10,2),
   `stock` INT,
@@ -79,42 +81,45 @@ CREATE TABLE `Products` (
 );
 
 CREATE TABLE `ProductMade` (
-  `PK_productsLog` VARCHAR(10) PRIMARY KEY,
-  `FK_productName` VARCHAR(50),
+  `PK_productsLog` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `FK_productName` INT,
   `Date` DATE,
   `quantity` INT,
   `description` TEXT,
   `status` BOOL,
-  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`)
+  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `MaterialNeeded` (
-  `FK_productName` VARCHAR(10) ,
-  `FK_material` VARCHAR(10) ,
-  FOREIGN KEY (`FK_productName`) REFERENCES `ProductMade`(`FK_productName`),
-  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`),
-  FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`)
+  `FK_productName` INT,
+  `FK_material` INT,
+  `amount` Decimal(10,2),
+  `unit` VARCHAR(10),
+  FOREIGN KEY (`FK_productName`) REFERENCES `ProductMade`(`FK_productName`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (`FK_material`) REFERENCES `MaterialStats`(`PK_material`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `Orders` (
-  `PK_Order` VARCHAR(10) PRIMARY KEY,
+  `PK_Order` VARCHAR(10) NOT NULL PRIMARY KEY,
   `orderDate` DATETIME,
   `status` Bool,
-  `FK_paymentMethod` VARCHAR(10),
-  FOREIGN KEY (`FK_paymentMethod`) REFERENCES `PaymentMethod`(`PK_paymentMethod`)
+  `FK_paymentMethod` INT,
+  FOREIGN KEY (`FK_paymentMethod`) REFERENCES `PaymentMethod`(`PK_paymentMethod`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `orderDetails` (
-  `PK_orderDetails` VARCHAR(10) PRIMARY KEY,
-  `FK_orderID` VARCHAR(10),
+  `PK_orderDetails` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `FK_order` VARCHAR(10),
   `FK_productName` VARCHAR(10) ,
   `quantity` INT,
   `status` BOOL,
-  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`),
-  FOREIGN KEY (`FK_orderID`) REFERENCES `Orders`(`PK_Order`)
+  FOREIGN KEY (`FK_productName`) REFERENCES `Products`(`PK_productName`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (`FK_orderID`) REFERENCES `Orders`(`PK_Order`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-
-
+CREATE INDEX `idx_fk_productName` ON `orderDetails` (`FK_productName`)
+ALTER INDEX `idx_fk_productName` ON `orderDetails` DISABLE
+/*-----------------------------------------------------------------Trigger-------------------------------------------------------------------*/
 DELIMITER $$
 CREATE TRIGGER Products_Update_Stocks 
 AFTER INSERT ON ProductMade 
@@ -134,47 +139,29 @@ THEN
 UPDATE Products SET stock = stock + NEW.quantity
 Where PK_productName = NEW.FK_productName;
 
+ELSE
+
+END IF;
+
 UPDATE MaterialStats 
 INNER JOIN MaterialNeeded
 ON MaterialStats.PK_material = MaterialNeeded.FK_material
-SET MaterialStats.stock = MaterialStats.stock - NEW.quantity 
+SET MaterialStats.stock = MaterialStats.stock - (NEW.quantity * MaterialNeeded.amount)
 WHERE MaterialNeeded.FK_productName = NEW.FK_productName;
 
-END IF;
-
 END $$
 
 DELIMITER ;
 
 DELIMITER $$
 
-CREATE TRIGGER Material_Update_Stocks 
-AFTER INSERT ON MaterialsAdded
+CREATE TRIGGER Material_Stock_Log 
+AFTER INSERT ON Materials
 FOR EACH ROW
 BEGIN
 
-DECLARE counts INT;
-
-SELECT COUNT(*) 
-INTO counts
-FROM MaterialStats
-WHERE PK_material = NEW.FK_material;
-
-IF (counts > 0)
-THEN
-UPDATE MaterialStats SET Stock = Stock + NEW.quantity
-Where PK_material = NEW.FK_material;
-END IF;
-
-END $$
-
-DELIMITER ;
-
-DELIMITER $$
-CREATE TRIGGER Material_Logs 
-AFTER INSERT ON MaterialsAdded
-FOR EACH ROW
-BEGIN
+INSERT INTO MaterialStats (`Amount`, `Status`,`FK_material`)
+VALUES(New.Amount,"Added", NEW.PK_material)
 
 INSERT INTO ExpensesLog(PK_expenses, date, FK_expenses_Neccesity_material)
 VALUES (
@@ -223,6 +210,8 @@ END IF;
 END $$
 
 DELIMITER ;
+
+/*-----------------------------------------------------------------Functions-------------------------------------------------------------------*/
 
 
 DELIMITER $$
@@ -280,3 +269,508 @@ RETURN totalAmount;
 END $$
 
 DELIMITER ;
+
+/*------------------------------------------------------------Procedure Insert-------------------------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS Order_add;
+DELIMITER $$
+CREATE PROCEDURE Order_add
+(
+ IN `param_PK_Order` VARCHAR(10),
+ IN `param_orderDate` DATETIME,
+ IN `param_status` Bool,
+ IN `param_FK_paymentMethod` VARCHAR(10)
+)
+
+BEGIN
+
+INSERT INTO Order (`PK_Order`,`orderDate`, `status`, `FK_paymentMethod`)
+VALUES (`param_PK_Order`,`param_orderDate`,`param_status`,`param_FK_paymentMethod`);
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS orderDetails_add;
+DELIMITER $$
+CREATE PROCEDURE orderDetails_add
+(
+  
+  IN `param_FK_order` INT,
+  IN `param_FK_productName` INT,
+  IN `param_quantity` INT,
+  IN `param_status` BOOL,
+)
+
+BEGIN
+
+INSERT INTO orderDetails (`FK_order`, `FK_productName`, `quantity`,`status`)
+VALUES (`param_FK_orderID`,`param_FK_productName` ,`param_quantity`, `param_status`);
+
+END $$
+DELIMITER ; 
+
+
+DROP PROCEDURE IF EXISTS ShareHolder_add;
+DELIMITER $$
+CREATE PROCEDURE ShareHolder_add
+(
+  IN `param_First` VARCHAR(50),
+  IN `param_Middle` VARCHAR(50),
+  IN `param_Last` VARCHAR(50),
+  IN `param_contact` VARCHAR(13),
+  IN `param_email` VARCHAR(40)
+)
+
+BEGIN
+
+INSERT INTO ShareHolder (`First`, `Middle`, `Last`,`contact`,  `email`)
+VALUES (`param_First`,`param_Middle` ,`param_Last`, `param_contact`,`param_email`);
+
+END $$
+DELIMITER ; 
+
+
+DROP PROCEDURE IF EXISTS Share_add;
+DELIMITER $$
+CREATE PROCEDURE Share_add
+(
+  IN `PARAM_Shared` DECIMAL(10,2),
+  IN `PARAM_FK_shareholder` VARCHAR(10),
+  IN `PARAM_Date` DATETIME,
+  IN `PARAM_description` TEXT
+)
+
+BEGIN
+
+INSERT INTO Share (`Shared`, `FK_shareholder`, `Date`, `description`)
+VALUES (`PARAM_Shared`,`PARAM_FK_shareholder` ,`PARAM_Date`, `PARAM_description`);
+
+END $$
+DELIMITER ; 
+
+
+DROP PROCEDURE IF EXISTS Materials_add;
+DELIMITER $$
+CREATE PROCEDURE Materials_add
+(
+   
+  IN `param_description` TEXT,
+  IN `param_price` DECIMAL(10,2),
+  IN `param_date` DATE,
+  IN `param_unit` VARCHAR(50),
+  IN `param_FK_share` VARCHAR(10),
+  IN `param_Amount` INT
+)
+
+BEGIN
+
+INSERT INTO Materials (`description`, `price`, `date`, `unit`,`FK_share`,`Amount`)
+VALUES (`param_description`,`param_price` ,`PARAM_date`, `param_unit`,`param_FK_share`,`param_Amount`);
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS Neccesity_add;
+DELIMITER $$
+CREATE PROCEDURE Neccesity_add
+(
+   
+  --IN  `param_PK_necessity` INT ,
+  IN  `param_necessity` VARCHAR(50),
+  IN  `param_price` DECIMAL(10,2),
+  IN  `param_description` TEXT,
+  IN  `param_date` DATE,
+  IN  `param_FK_share` VARCHAR(10)
+)
+
+BEGIN
+
+INSERT INTO Neccesity (`necessity`, `price`,`description`, `date`, `FK_share`)
+VALUES (`param_necessity`,`param_price` ,`param_description`,`param_date`, `param_FK_share`);
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS PaymentMethod_add;
+DELIMITER $$
+CREATE PROCEDURE PaymentMethod_add
+(
+  --IN  `param_PK_necessity` INT ,
+  IN  `param_paymentMethod` VARCHAR(50),
+  IN  `param_description` TEXT,
+  IN  `param_discountRate` Decimal(2,2),
+  IN  `param_PK_shareholder` VARCHAR(10)
+)
+
+BEGIN
+
+INSERT INTO PaymentMethod (`paymentMethod`,`description`, `discountRate`, `PK_shareholder`)
+VALUES (`param_necessity`,`param_price` ,`param_description`,`param_date`, `param_FK_share`);
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS Products_add;
+DELIMITER $$
+CREATE PROCEDURE Products_add
+(
+  --IN  `param_PK_necessity` INT ,
+  IN  `param_desription` TEXT,
+  IN  `param_price` DECIMAL(10,2),
+  IN  `param_stock` INT,
+  IN  `param_unit` VARCHAR(25),
+  IN  `param_status` BOOL
+)
+
+BEGIN
+
+INSERT INTO Products (`desription`,`price`, `stock`,`unit`, `status`)
+VALUES (`param_desription`,`param_price` ,`param_stock`,`param_unit`, `param_status`);
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS ProductMade_add;
+DELIMITER $$
+CREATE PROCEDURE ProductMade_add
+(
+  --IN  `param_PK_necessity` INT ,
+  IN  `param_FK_productName` VARCHAR(50),
+  IN  `param_Date` DATE,
+  IN  `param_quantity` INT,
+  IN  `param_description` TEXT,
+  IN  `param_status` BOOL
+)
+
+BEGIN
+
+INSERT INTO ProductMade (`FK_productName`,`Date`, `quantity`,`description`, `status`)
+VALUES (`param_FK_productName`,`param_Date` ,`param_quantity`,`param_description`, `param_status`);
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS MaterialNeeded_add;
+DELIMITER $$
+CREATE PROCEDURE MaterialNeeded_add
+(
+  --IN  `param_PK_necessity` INT ,
+ IN  `param_FK_productName` INT,
+ IN  `param_FK_material` INT,
+ IN  `param_amount` Decimal(10,2),
+ IN  `param_unit` VARCHAR(10),
+)
+
+BEGIN
+
+INSERT INTO MaterialNeeded (`FK_productName`,`FK_material`, `amount`,`unit`)
+VALUES (`param_FK_productName`,`param_FK_material` ,`param_amount`,`param_unit`);
+
+END $$
+DELIMITER ; 
+
+/*---------------------------------------------------------Procedure Update-------------------------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS ShareHolder_Update;
+DELIMITER $$
+CREATE PROCEDURE ShareHolder_Update
+(
+  IN `param_PK_ShareHolder` INT,
+  IN `param_First` VARCHAR(50),
+  IN `param_Middle` VARCHAR(50),
+  IN `param_Last` VARCHAR(50),
+  IN `param_contact` VARCHAR(13),
+  IN `param_email` VARCHAR(40)
+)
+
+BEGIN
+
+UPDATE `ShareHolder` 
+SET `First`   = `param_First`, 
+    `Middle`  = `param_Middle`, 
+    `Last`    = `param_Last`,
+    `contact` = `param_contact`,  
+    `email`   = `param_email`,
+WHERE `PK_ShareHolder` = `param_PK_ShareHolder`;
+
+END $$
+DELIMITER ; 
+
+
+DROP PROCEDURE IF EXISTS Share_Update;
+DELIMITER $$
+CREATE PROCEDURE Share_Update
+(
+  IN `Param_PK_Share` INT,
+  IN `PARAM_Shared` DECIMAL(10,2),
+  IN `PARAM_FK_shareholder` VARCHAR(10),
+  IN `PARAM_Date` DATETIME,
+  IN `PARAM_description` TEXT
+)
+
+BEGIN
+
+UPDATE `Share` 
+SET `Shared`          = `PARAM_Shared`, 
+    `FK_shareholder`  = `PARAM_FK_shareholder`, 
+    `Date`            = `PARAM_Date`,
+    `description`     = `PARAM_description`,
+WHERE `PK_Share`      = `Param_PK_Share`;
+
+END $$
+DELIMITER ; 
+
+
+DROP PROCEDURE IF EXISTS Materials_Update;
+DELIMITER $$
+CREATE PROCEDURE Materials_Update
+(
+  IN `param_PK_Materials` INT ,
+  IN `param_description` TEXT,
+  IN `param_price` DECIMAL(10,2),
+  IN `param_date` DATE,
+  IN `param_unit` VARCHAR(50),
+  IN `param_FK_share` VARCHAR(10),
+  IN `param_Amount` INT
+)
+
+BEGIN
+
+
+UPDATE `Materials` 
+SET `description`    = `param_description`, 
+    `price`          = `param_price`, 
+    `date`           = `param_date`,
+    `unit`           = `param_unit`,  
+    `FK_share`       = `param_FK_share`,
+    `Amount`         =  `param_Amount`,
+WHERE `PK_Materials` = `param_PK_Materials`;
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS Neccesity_Update;
+DELIMITER $$
+CREATE PROCEDURE Neccesity_Update
+(
+   
+  IN  `param_PK_necessity` INT ,
+  IN  `param_necessity` VARCHAR(50),
+  IN  `param_price` DECIMAL(10,2),
+  IN  `param_description` TEXT,
+  IN  `param_date` DATE,
+  IN  `param_FK_share` VARCHAR(10)
+)
+
+BEGIN
+
+UPDATE `Neccesity` 
+SET `necessity`      = `param_necessity`, 
+    `price`          = `param_price`, 
+    `description`    = `param_description`,
+    `date`           = `param_date`,  
+    `FK_share`       = `param_FK_share`,
+WHERE `PK_necessity` = `param_PK_necessity`;
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS PaymentMethod_Update;
+DELIMITER $$
+CREATE PROCEDURE PaymentMethod_Update
+(
+  IN  `param_PK_PaymentMethod` INT ,
+  IN  `param_paymentMethod` VARCHAR(50),
+  IN  `param_description` TEXT,
+  IN  `param_discountRate` Decimal(2,2),
+  IN  `param_PK_shareholder` VARCHAR(10)
+)
+
+BEGIN
+
+UPDATE `PaymentMethod` 
+SET `necessity`      = `param_necessity`, 
+    `price`          = `param_price`, 
+    `description`    = `param_description`,
+    `date`           = `param_date`,  
+    `FK_share`       = `param_FK_share`,
+WHERE `PK_necessity` = `param_PK_necessity`;
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS Products_Update;
+DELIMITER $$
+CREATE PROCEDURE Products_Update
+(
+  IN  `param_PK_Products` INT ,
+  IN  `param_desription` TEXT,
+  IN  `param_price` DECIMAL(10,2),
+  IN  `param_stock` INT,
+  IN  `param_unit` VARCHAR(25),
+  IN  `param_status` BOOL
+)
+
+BEGIN
+
+UPDATE `Products` 
+SET `stock`       = `param_stock`, 
+    `price`       = `param_price`, 
+    `description` = `param_description`,
+    `unit`        = `param_unit`,  
+    `status`      = `param_status`,
+WHERE `PK_Products` = `param_PK_Products`;
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS ProductMade_Update;
+DELIMITER $$
+CREATE PROCEDURE ProductMade_Update
+(
+  IN  `param_PK_productsLog` INT ,
+  IN  `param_PK_productName` VARCHAR(50),
+  IN  `param_Date` DATE,
+  IN  `param_quantity` INT,
+  IN  `param_description` TEXT,
+  IN  `param_status` BOOL
+)
+
+BEGIN
+
+UPDATE `ProductMade`
+SET `stock`       = `param_PK_productName`, 
+    `price`       = `param_Date`, 
+    `description` = `param_quantity`,
+    `unit`        = `param_description`,  
+    `status`      = `param_status`
+WHERE `PK_productsLog` = `param_PK_productsLog`;
+
+END $$
+DELIMITER ; 
+
+/*------------------------------------------------------------Procedure Delete-------------------------------------------------------------------*/
+
+DROP PROCEDURE IF EXISTS ShareHolder_delete;
+DELIMITER $$
+CREATE PROCEDURE ShareHolder_delete
+(
+  IN `param_PK_ShareHolder` INT
+
+)
+
+BEGIN
+
+DELETE FROM `ShareHolder` 
+WHERE `PK_ShareHolder` =  `param_PK_ShareHolder`;
+
+END $$
+DELIMITER ; 
+
+
+DROP PROCEDURE IF EXISTS Share_delete;
+DELIMITER $$
+CREATE PROCEDURE Share_delete
+(
+  IN `param_PK_Share` INT
+
+)
+
+BEGIN
+
+DELETE FROM `Share` 
+WHERE `PK_Share` =  `param_PK_Share`;
+
+END $$
+DELIMITER ; 
+
+
+DROP PROCEDURE IF EXISTS Materials_delete;
+DELIMITER $$
+CREATE PROCEDURE Materials_delete
+(
+  IN `param_PK_Materials` INT
+)
+
+BEGIN
+
+DELETE FROM `Materials` 
+WHERE `PK_Materials` =  `param_PK_Materials`;
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS Neccesity_delete;
+DELIMITER $$
+CREATE PROCEDURE Neccesity_delete
+(
+ IN `param_PK_Neccesity` INT
+)
+
+BEGIN
+
+DELETE FROM `Neccesity` 
+WHERE `PK_Neccesity` =  `param_PK_Neccesity`;
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS PaymentMethod_delete;
+DELIMITER $$
+CREATE PROCEDURE PaymentMethod_delete
+(
+ IN `param_PK_PaymentMethod` INT
+)
+
+BEGIN
+
+DELETE FROM `PaymentMethod` 
+WHERE `PK_PaymentMethod` =  `param_PK_PaymentMethod`;
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS Products_delete;
+DELIMITER $$
+CREATE PROCEDURE Products_delete
+(
+ IN `param_PK_Products` INT
+)
+
+BEGIN
+
+DELETE FROM `Products` 
+WHERE `PK_Products` =  `param_PK_Products`;
+
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS ProductMade_delete;
+DELIMITER $$
+CREATE PROCEDURE ProductMade_delete
+(
+ IN `param_PK_productsLog` INT
+)
+
+BEGIN
+
+DELETE FROM `ProductMade` 
+WHERE `PK_productsLog` =  `param_PK_productsLog`;
+END $$
+DELIMITER ; 
+
+DROP PROCEDURE IF EXISTS MaterialNeeded_delete;
+DELIMITER $$
+CREATE PROCEDURE MaterialNeeded_delete
+(
+  IN `param_FK_productName` INT,
+  IN `param_FK_material` INT
+)
+
+BEGIN
+
+DELETE FROM `MaterialNeeded` 
+WHERE `FK_productName` =  `param_FK_productName` AND `FK_material` =  `param_FK_material` ;
+
+END $$
+DELIMITER ; 
