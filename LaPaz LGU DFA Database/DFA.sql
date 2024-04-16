@@ -54,7 +54,7 @@ CREATE TABLE [Contact] (
   [PK_contact] INT PRIMARY KEY IDENTIFY(1,1),
   [Cellphone] Nvarchar(12),
   [Telcom] Nvarchar(50),
-  [FK_farmerInfo] INT FK,
+  [FK_farmerInfo] INT,
   CONSTRAINT [FK_Contact.FK_farmerInfo]
     FOREIGN KEY ([FK_farmerInfo])
       REFERENCES [FarmersInfo]([PK_farmersInfo]) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -81,7 +81,7 @@ CREATE TABLE [LiveStock] (
   [FK_personalInf] INT,
   [FK_liveStock] INT,
   [quantity] INT,
-  [FK_farmTechnician] INT FK,
+  [FK_farmTechnician] INT,
   CONSTRAINT [FK_LiveStock.FK_personalInf]
     FOREIGN KEY ([FK_personalInf])
       REFERENCES [FarmersInfo]([PK_farmersInfo])ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -117,7 +117,7 @@ CREATE TABLE [SeasonCrop] (
   [FK_brandSeed] INT,
   [estimatedCost] Decimal,
   [SubsGrant] Bit,
-  [FK_farmTechnician] INT FK,
+  [FK_farmTechnician] INT,
   CONSTRAINT [FK_SeasonCrop.FK_farmerInfo]
     FOREIGN KEY ([FK_farmerInfo])
       REFERENCES [BrandSeed]([brandName]) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -137,7 +137,7 @@ CREATE TABLE [Season] (
   [Season] NVARCHAR(25),
   [dateStart] Date,
   [dateEnd] Date,
-  [FK_seasonCrop] INT FK,
+  [FK_seasonCrop] INT,
   CONSTRAINT [FK_Season.FK_seasonCrop]
     FOREIGN KEY ([FK_seasonCrop])
       REFERENCES [SeasonCrop]([PK_SeasonCrop]) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -167,8 +167,8 @@ CREATE TABLE [Subsidized] (
   [PK_subsidized] INT PRIMARY KEY IDENTIFY(1,1),
   [Date] Date,
   [SubsidizedPrice] Decimal,
-  [FK_personalInfo] INT FK,
-  [FK_BrandName] INT FK,
+  [FK_personalInfo] INT,
+  [FK_BrandName] INT,
   CONSTRAINT [FK_Subsidized.FK_personalInfo]
     FOREIGN KEY ([FK_personalInfo])
       REFERENCES [FarmersInfo]([PK_farmersInfo]) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -209,8 +209,8 @@ CREATE TABLE [Stock Incident] (
   [descriptionAdd] Nvarchar(255),
   [dateOccured] date,
   [dateReported] date,
-  [FK_incidentType] INT FK,
-  [FK_farmTechnician] INT FK,
+  [FK_incidentType] INT,
+  [FK_farmTechnician] INT,
   CONSTRAINT [FK_Stock Incident.FK_farmTechnician]
     FOREIGN KEY ([FK_farmTechnician])
       REFERENCES [Farm Technician]([PK_farmTechnician]) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -226,12 +226,12 @@ R:{
 FD:{53 -> 46, 1, 9, 54 to 56} Highest Normal Form{BCNF} CK:{53}
 CREATE TABLE [Crop Incident] (
   [PK_cropIncident] INT PRIMARY KEY IDENTIFY(1,1),
-  [FK_personalInfo] INT FK,
+  [FK_personalInfo] INT,
   [dateOccured] date,
   [dareReported] date,
   [descriptionAdd] Nvarchar(255),
-  [FK_incidentType] INT FK,
-  [FK_farmTechnician] INT FK,
+  [FK_incidentType] INT,
+  [FK_farmTechnician] INT,
   CONSTRAINT [FK_Crop Incident.FK_personalInfo]
     FOREIGN KEY ([FK_personalInfo])
       REFERENCES [FarmersInfo]([PK_farmersInfo]) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -239,3 +239,5 @@ CREATE TABLE [Crop Incident] (
     FOREIGN KEY ([FK_farmTechnician])
       REFERENCES [Farm Technician]([PK_farmTechnician]) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
+-----------------------------------------------Function---------------------------------------------------------------------
