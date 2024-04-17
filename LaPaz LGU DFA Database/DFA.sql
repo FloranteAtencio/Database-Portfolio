@@ -14,13 +14,15 @@ CREATE TABLE [FarmersInfo] (
   [baranggay] NOT NULL Nvarchar(5)
 );
 
+CREATE INDEX idx_First_Last ON [FarmersInfo] (First, Last)
+ALTER INDEX idx_First_Last ON [FarmersInfo] DISABLE
 
 Farm Technician
 R:{
 9	10	11	12	13	14	15
 }	
 FD:{ 9-> 10 to 15}     Highest Normal Form(BCNF) CK:{9}
-CREATE TABLE [Farm Technician] (
+CREATE TABLE [FarmTechnician] (
   [PK_farmTechnician] INT PRIMARY KEY IDENTIFY(1,1),
   [firstname] NOT NULL Nvarchar(25),
   [middleName] Nvarchar(25),
@@ -29,6 +31,9 @@ CREATE TABLE [Farm Technician] (
   [desingation] Nvarchar(25),
   [ContactNumber] Nvarchar(25)
 );
+
+CREATE INDEX idx_First_Last_tech ON [FarmTechnician] (First, Last)
+ALTER INDEX idx_First_Last_tech ON [FarmTechnician] DISABLE
 
 LandTill	
 R:{
@@ -105,6 +110,8 @@ CREATE TABLE [BrandSeed] (
   [price] Nvarchar(50)
 );
 
+CREATE INDEX idx_brandName ON [BrandSeed] (brandName)
+ALTER INDEX idx_brandName ON [BrandSeed] DISABLE
 
 Season Crop
 R:{
@@ -126,7 +133,6 @@ CREATE TABLE [SeasonCrop] (
       REFERENCES [Farm Technician]([PK_farmTechnician]) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
-
 Season
 R:{
 34	35	36	37		
@@ -143,6 +149,8 @@ CREATE TABLE [Season] (
       REFERENCES [SeasonCrop]([PK_SeasonCrop]) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+CREATE INDEX idx_brandName ON [BrandSeed] (brandName)
+ALTER INDEX idx_brandName ON [BrandSeed] DISABLE
 
 CompanyProvider
 R:{
@@ -195,9 +203,6 @@ CREATE TABLE [Incident Type] (
       REFERENCES [Crop Incident]([FK_incidentType]) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
-
-
-
 Stock Incident
 R:{
 49, 50, 51, 52
@@ -241,3 +246,121 @@ CREATE TABLE [Crop Incident] (
 );
 
 -----------------------------------------------Function---------------------------------------------------------------------
+
+CREATE FUNCTION Full_Name1
+(
+  @PK_farmersInfo INT
+)
+RETURNS NVARCHAR
+AS
+BEGIN 
+
+DECLARE @Full_name Varchar(100)
+
+SELECT CONCAT(lastName + ", " + firstName + " " + middleName)
+INTO @Full_name
+FROM FarmersInfo
+WHERE PK_farmerInfo =  @PK_farmersInfo;
+
+RETURN @Full_name
+
+END 
+
+
+CREATE FUNCTION Full_Name2
+(
+  @PK_farmersInfo INT
+)
+RETURNS NVARCHAR
+AS
+BEGIN 
+
+DECLARE @Full_name Varchar(100)
+
+SELECT CONCAT(firstName  + " " + middleName + " " + lastNameName)
+INTO @Full_name
+FROM FarmersInfo
+WHERE PK_farmerInfo =  @PK_farmersInfo;
+
+RETURN @Full_name
+
+END
+
+CREATE FUNCTION Age
+(
+  @PK_farmersInfo INT
+)
+RETURNS INT
+AS
+BEGIN 
+
+DECLARE @Age INT
+
+SELECT Year(NOW()) - Year(Birthday)
+INTO @Age
+FROM FarmersInfo
+WHERE PK_farmerInfo =  @PK_farmersInfo;
+
+RETURN @Age
+
+END
+
+CREATE FUNCTION Contact_Lists
+(
+  @PK_farmersInfo INT
+)
+RETURNS INT
+AS
+BEGIN 
+
+DECLARE @CONTACTS NVARCHAR(MAX)
+
+SELECT STRING_AGG (CONVERT(NVARCHAR(MAX), Contact), ',') as Contact
+INTO @Age
+FROM FarmersInfo a
+JOIN Contact b ON a.PK_farmerInfo = b.FK_farmerInfo 
+WHERE a.PK_farmerInfo =  @PK_farmersInfo;
+
+RETURN @CONTACTS
+
+END
+
+CREATE FUNCTION Till_Lists
+(
+  @PK_farmersInfo INT
+)
+RETURNS INT
+AS
+BEGIN 
+
+DECLARE @ProofofEntitledLand NVARCHAR(MAX)
+
+SELECT STRING_AGG (CONVERT(NVARCHAR(MAX), ProofofEntitledLand), ',') as ProofofEntitledLand
+INTO @ProofofEntitledLand
+FROM FarmersInfo a
+JOIN LandTill b ON a.PK_farmerInfo = b.FK_farmerInfo 
+WHERE a.PK_farmerInfo =  @PK_farmersInfo;
+
+RETURN @ProofofEntitledLand
+
+END
+
+CREATE FUNCTION Till_Lists
+(
+  @PK_farmersInfo INT
+)
+RETURNS INT
+AS
+BEGIN 
+
+DECLARE @ProofofEntitledLand NVARCHAR(MAX)
+
+SELECT STRING_AGG (CONVERT(NVARCHAR(MAX), ProofofEntitledLand), ',') as ProofofEntitledLand
+INTO @ProofofEntitledLand
+FROM FarmersInfo a
+JOIN LandTill b ON a.PK_farmerInfo = b.FK_farmerInfo 
+WHERE a.PK_farmerInfo =  @PK_farmersInfo;
+
+RETURN @ProofofEntitledLand
+
+END
