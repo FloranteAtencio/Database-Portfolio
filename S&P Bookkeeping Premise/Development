@@ -1,10 +1,10 @@
 CREATE TABLE `Client` (
-  `ClientID` PK Auto_increment INT,
+  `ClientID` PK Not Null Auto_increment INT,
   `Firstname` Varchar(50),
   `LastName` Varchar(50),
   `City` Varchar(10),
   `Country` Varchar(4)
-);
+)AUTO_INCREMENT=1001;
 
 
 CREATE TABLE `Transaction` (
@@ -14,14 +14,14 @@ CREATE TABLE `Transaction` (
   `Description` Text,
   `ClientID` FK INT,
 FOREIGN KEY (`ClientID`) REFERENCES `Client`(`ClientID`) on DELETE NO ACTION ON UPDATE NO ACTION 
-);
+) AUTO_INCREMENT=2001;
 
 CREATE TABLE `Accounts` (
   `AccountID` PK Auto_increment INT,
   `AccountName` Varchar(15),
   `AccountType` Varchar(15),
   `Description` Text
-);
+) AUTO_INCREMENT=3001;
 
 CREATE TABLE `Details` (
   `DetailsID` PK Auto_increment INT,
@@ -31,7 +31,7 @@ CREATE TABLE `Details` (
   `DebitCredit` Varchar(10)
   FOREIGN KEY (`TransactionID`) REFERENCES `Transaction`(`TransactionID`) on DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (`AccountID`) REFERENCES `Account`(`AccountID`) on DELETE NO ACTION ON UPDATE NO ACTION
-);
+) AUTO_INCREMENT=3001;
 
 ------ Balances Sheet ---------------
 SELECT 
