@@ -1,0 +1,32 @@
+CREATE TABLE `Client` (
+  `ClientID` PK Auto_increment INT,
+  `Firstname` Varchar(50),
+  `LastName` Varchar(50),
+  `City` Varchar(10),
+  `Country` Varchar(4)
+);
+
+
+CREATE TABLE `Transaction` (
+  `TransactionID` PK Auto_increment INT,
+  `TransactionDate` Date,
+  `TotalAmount` Decimal,
+  `Description` Text,
+  `ClientID` FK INT
+);
+
+CREATE TABLE `Accounts` (
+  `AccountID` PK Auto_increment INT,
+  `AccountName` Varchar(15),
+  `AccountType` Varchar(15),
+  `Description` Text
+);
+
+CREATE TABLE `Details` (
+  `DetailsID` PK Auto_increment INT,
+  `TransactionID` FK INT,
+  `AccountID` FK INT,
+  `Amount` DECIMAL,
+  `DebitCredit` Varchar(10)
+);
+
