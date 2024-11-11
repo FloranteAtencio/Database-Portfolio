@@ -12,7 +12,8 @@ CREATE TABLE `Transaction` (
   `TransactionDate` Date,
   `TotalAmount` Decimal,
   `Description` Text,
-  `ClientID` FK INT
+  `ClientID` FK INT,
+FOREIGN KEY (`ClientID`) REFERENCES `Client`(`ClientID`) on DELETE NO ACTION ON UPDATE NO ACTION 
 );
 
 CREATE TABLE `Accounts` (
@@ -28,5 +29,161 @@ CREATE TABLE `Details` (
   `AccountID` FK INT,
   `Amount` DECIMAL,
   `DebitCredit` Varchar(10)
+  FOREIGN KEY (`TransactionID`) REFERENCES `Transaction`(`TransactionID`) on DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (`AccountID`) REFERENCES `Account`(`AccountID`) on DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+------ Balances Sheet ---------------
+SELECT 
+    'Revenue' AS Section,
+    A.AccountName,
+    SUM(CASE 
+        WHEN TD.DebitCredit = 'Credit' THEN TD.Amount 
+        ELSE -TD.Amount 
+    END) AS Balance
+FROM 
+    Accounts A
+JOIN 
+    TransactionDetails TD ON A.AccountID = TD.AccountID
+WHERE 
+    A.AccountType = 'Income'
+GROUP BY 
+    A.AccountName
+
+UNION ALL
+
+-- Select Expenses
+SELECT 
+    'Expenses' AS Section,
+    A.AccountName,
+    SUM(CASE 
+        WHEN TD.DebitCredit = 'Debit' THEN TD.Amount 
+        ELSE -TD.Amount 
+    END) AS Balance
+FROM 
+    Accounts A
+JOIN 
+    TransactionDetails TD ON A.AccountID = TD.AccountID
+WHERE 
+    A.AccountType = 'Expense'
+GROUP BY 
+    A.AccountName
+
+UNION ALL
+
+-- Calculate Total Revenue
+SELECT 
+    'Total Revenue' AS Section,
+    '' AS AccountName,
+    SUM(CASE 
+        WHEN A.AccountType = 'Income' AND TD.DebitCredit = 'Credit' THEN TD.Amount 
+        ELSE -TD.Amount 
+    END) AS Balance
+FROM 
+    Accounts A
+JOIN 
+    TransactionDetails TD ON A.AccountID = TD.AccountID
+
+UNION ALL
+
+-- Calculate Total Expenses
+SELECT 
+    'Total Expenses' AS Section,
+    '' AS AccountName,
+    SUM(CASE 
+        WHEN A.AccountType = 'Expense' AND TD.DebitCredit = 'Debit' THEN TD.Amount 
+        ELSE -TD.Amount 
+    END) AS Balance
+FROM 
+    Accounts A
+JOIN 
+    TransactionDetails TD ON A.AccountID = TD.AccountID
+
+UNION ALL
+
+-- Calculate Net Profit or Loss
+SELECT 
+    'Net Profit/Loss' AS Section,
+    '' AS AccountName,
+    ( 
+        -- Total Revenue
+        SUM(CASE 
+            WHEN A.AccountType = 'Income' AND TD.DebitCredit = 'Credit' THEN TD.Amount 
+            ELSE -TD.Amount 
+        END) 
+        -- Minus Total Expenses
+        - SUM(CASE 
+            WHEN A.AccountType = 'Expense' AND TD.DebitCredit = 'Debit' THEN TD.Amount 
+            ELSE -TD.Amount 
+        END)
+    ) AS Balance
+FROM 
+    Accounts A
+JOIN 
+    TransactionDetails TD ON A.AccountID = TD.AccountID
+ORDER BY 
+    FIELD(Section, 'Revenue', 'Expenses', 'Total Revenue', 'Total Expenses', 'Net Profit/Loss');
+
+
+----- General Journal ----
+
+SELECT 
+    t.transaction_id,
+    t.transaction_date,
+    a.account_name,
+    a.description,
+    t.debit,
+    t.credit
+FROM 
+    Transactions t
+JOIN 
+    Accounts a ON t.account_id = a.account_id
+ORDER BY 
+    t.transaction_date, t.transaction_id;
+
+
+
+------ General ledger ----------
+SELECT 
+    a.account_name,
+    t.transaction_date,
+    t.transaction_id,
+    t.debit,
+    t.credit,
+    SUM(t.debit - t.credit) OVER (PARTITION BY a.account_id ORDER BY t.transaction_date, t.transaction_id) AS running_balance,
+    t.description
+FROM 
+    Transactions t
+JOIN 
+    Accounts a ON t.account_id = a.account_id
+ORDER BY 
+    a.account_name, t.transaction_date, t.transaction_id;
+
+------------- Income Statement ----------
+SELECT 
+    CASE 
+        WHEN a.account_type = 'Revenue' THEN 'Total Revenue'
+        WHEN a.account_type = 'Expense' THEN 'Total Expenses'
+    END AS category,
+    SUM(t.credit - t.debit) AS amount
+FROM 
+    Transactions t
+JOIN 
+    Accounts a ON t.account_id = a.account_id
+WHERE 
+    a.account_type IN ('Revenue', 'Expense')
+GROUP BY 
+    a.account_type
+UNION ALL
+SELECT 
+    'Net Income' AS category,
+    SUM(CASE 
+            WHEN a.account_type = 'Revenue' THEN t.credit - t.debit
+            WHEN a.account_type = 'Expense' THEN t.debit - t.credit
+        END) AS amount
+FROM 
+    Transactions t
+JOIN 
+    Accounts a ON t.account_id = a.account_id
+WHERE 
+    a.account_type IN ('Revenue', 'Expense');
