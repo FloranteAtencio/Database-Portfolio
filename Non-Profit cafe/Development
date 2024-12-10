@@ -1094,3 +1094,37 @@ WHEN NO_DATA_FOUND THEN
 
 END;
 /
+
+CREATE OR REPLACE PROCEDURE insert_staff(
+    v_json_data IN CLOB
+)
+IS
+    v_json_array JSON_ARRAY_T := JSON_ARRAY_T(v_json_data);
+    v_order_item JSON_OBJECT_T;
+    v_item JSON_OBJECT_T;
+    v_items JSON_ARRAY_T;
+    v_order_count NUMBER;
+BEGIN
+    FOR i IN 1..v_json_array.get_size LOOP
+        v_order_item := v_json_array.get_object(i);
+        v_order_count := v_order_item.get_number('count');
+        v_items := v_order_item.get_array('items');
+        
+        FOR j IN 1..v_items.get_size LOOP
+            v_item := v_items.get_object(j);
+            INSERT INTO staff_table (order_count, menu_id, quantity, subtotal)
+            VALUES (v_order_count, v_item.get_number('menu'), v_item.get_number('quantity'), v_item.get_number('subtotal'));
+        END LOOP;
+    END LOOP;
+
+    COMMIT;
+EXCEPTION 
+    WHEN DUP_VAL_ON_INDEX THEN 
+        DBMS_OUTPUT.PUT_LINE('Duplicate value encountered.'); 
+    WHEN INVALID_NUMBER THEN 
+        DBMS_OUTPUT.PUT_LINE('Invalid data encountered.'); 
+    WHEN OTHERS THEN 
+        DBMS_OUTPUT.PUT_LINE('An unexpected error occurred: ' || SQLERRM); 
+END;
+/
+
