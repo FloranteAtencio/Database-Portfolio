@@ -1190,3 +1190,95 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('An unexpected error occurred: ' || SQLERRM); 
 END;
 /
+
+DECLARE
+  v_json_data CLOB := '{"count":10,"items":[{"menu":2009,"quantity":2,"subtotal":5},{"menu":2001,"quantity":10,"subtotal":2}]}';
+  v_order_count NUMBER;
+  v_order_date DATE := SYSDATE; -- Using the current date for order_date
+BEGIN
+  v_order_count := JSON_VALUE(v_json_data, '$.count');
+  
+  -- Insert data directly using JSON_TABLE and JSON_VALUE
+  INSERT INTO order_items (order_count, menu_id, quantity, subtotal, order_date)
+  SELECT v_order_count, 
+         JSON_VALUE(ji.value, '$.menu'), 
+         JSON_VALUE(ji.value, '$.quantity'), 
+         JSON_VALUE(ji.value, '$.subtotal'), 
+         v_order_date
+  FROM JSON_TABLE(JSON_QUERY(v_json_data, '$.items'), '$[*]' 
+    COLUMNS (value CLOB PATH '$')) ji;
+
+  COMMIT;
+EXCEPTION 
+  WHEN DUP_VAL_ON_INDEX THEN 
+    DBMS_OUTPUT.PUT_LINE('Duplicate value encountered.'); 
+  WHEN INVALID_NUMBER THEN 
+    DBMS_OUTPUT.PUT_LINE('Invalid data encountered.'); 
+  WHEN OTHERS THEN 
+    DBMS_OUTPUT.PUT_LINE('An unexpected error occurred: ' || SQLERRM); 
+END;
+/
+
+INSERT INTO staff_table (id, name, position, salary)
+SELECT 
+    jt.id, 
+    jt.name, 
+    jt.position, 
+    jt.salary 
+FROM JSON_TABLE(v_json_data, '$[*]' 
+    COLUMNS (
+        id NUMBER PATH '$.id', 
+        name VARCHAR2(100) PATH '$.name', 
+        position VARCHAR2(50) PATH '$.position', 
+        salary NUMBER PATH '$.salary'
+    )
+) jt;
+
+
+-- Assuming your table is created like this:
+CREATE TABLE staff_table (
+    id NUMBER,
+    name VARCHAR2(100),
+    position VARCHAR2(50),
+    salary NUMBER
+);
+
+-- Declare your JSON data
+DECLARE
+    v_json_data CLOB := '{
+        "staff": [
+            {
+                "id": 1,
+                "name": "John Doe",
+                "position": "Manager",
+                "salary": 80000
+            },
+            {
+                "id": 2,
+                "name": "Jane Smith",
+                "position": "Analyst",
+                "salary": 60000
+            }
+        ]
+    }';
+BEGIN
+    INSERT INTO staff_table (id, name, position, salary)
+    SELECT 
+        jt.id,
+        jt.name,
+        jt.position,
+        jt.salary
+    FROM JSON_TABLE(v_json_data, '$.staff[*]'
+        COLUMNS (
+            id NUMBER PATH '$.id',
+            name VARCHAR2(100) PATH '$.name',
+            position VARCHAR2(50) PATH '$.position',
+            salary NUMBER PATH '$.salary'
+        )
+    ) jt;
+
+    COMMIT;
+END;
+/
+
+
